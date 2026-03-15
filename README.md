@@ -108,3 +108,34 @@ When ready, the team leader will upload the submission to Canvas on behalf of th
 | `ai-prompts.txt`     | A list of AI prompts used in the assignment                                |
 
 _Table 6. Required files in your group submission_
+
+# Ideas
+
+- Budgeting app
+  - Simple tracker/planner. Future enhancement possibility to add backend.
+  - Pages
+    - Dashboard
+      - Expenses
+      - Insights on dashboard data
+      - Spending by timeline
+        - Today's spending
+        - This week
+        - This month
+        - Delta between current spending and a goal
+
+    - Track money movement
+      - Manual form
+      - Scan a receipt\*
+      - Subscriptions
+    - Goals
+      - What are categorical group spendings.
+      - Set goals
+      - Goal type
+        - Savings
+        - Spending
+          - Categories
+            - ...
+        - Income?
+
+- Layout
+  - Navbar
