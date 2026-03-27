@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { RouterView } from 'vue-router'
+import { ref, computed } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
 import 'bulma/css/bulma.css'
 
+const route = useRoute()
 const sidebarOpen = ref(true)
+const hideLayout = computed(() => route.meta.hideLayout === true)
 </script>
 
 <template>
-  <div id="app-layout">
+  <div id="app-layout" v-if="hideLayout">
+    <RouterView />
+  </div>
+
+  <div id="app-layout" v-else>
     <nav class="navbar is-white" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <a class="navbar-item" href="/">
