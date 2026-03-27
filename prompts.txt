@@ -1,0 +1,3 @@
+Context: We created a mockup for the original app idea `TutorSync` using Google Gemini.
+    - From there, we prompted ChatGPT: Can you create just the logo of this mockup without the name? *insert mockup image from Gemini*
+    - The output was the Colourful Graduation Cube used for the website.
