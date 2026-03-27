@@ -3,9 +3,12 @@ import { ref } from 'vue'
 
 const email = ref('')
 const password = ref('')
+const confirmPassword = ref('')
+const name = ref('')
 const isLoading = ref(false)
+const isRegistering = ref(false)
 
-function handleLogin() {
+function handleSubmit() {
   isLoading.value = true
   // TODO: implement auth
   setTimeout(() => {
@@ -23,11 +26,29 @@ function handleLogin() {
             <div class="has-text-centered mb-5">
               <img src="/tutor_sync.png" alt="TutorSync" class="login-logo mb-4" />
               <h1 class="title is-3 has-text-white">TutorSync</h1>
-              <p class="subtitle is-6 has-text-grey-light">Sign in to your account</p>
+              <p class="subtitle is-6 has-text-grey-light">
+                {{ isRegistering ? 'Create your account' : 'Sign in to your account' }}
+              </p>
             </div>
 
             <div class="box">
-              <form @submit.prevent="handleLogin">
+              <form @submit.prevent="handleSubmit">
+                <div v-if="isRegistering" class="field">
+                  <label class="label">Name</label>
+                  <div class="control has-icons-left">
+                    <input
+                      v-model="name"
+                      class="input"
+                      type="text"
+                      placeholder="Your full name"
+                      required
+                    />
+                    <span class="icon is-small is-left">
+                      <i class="fas fa-user"></i>
+                    </span>
+                  </div>
+                </div>
+
                 <div class="field">
                   <label class="label">Email</label>
                   <div class="control has-icons-left">
@@ -60,7 +81,23 @@ function handleLogin() {
                   </div>
                 </div>
 
-                <div class="field">
+                <div v-if="isRegistering" class="field">
+                  <label class="label">Confirm Password</label>
+                  <div class="control has-icons-left">
+                    <input
+                      v-model="confirmPassword"
+                      class="input"
+                      type="password"
+                      placeholder="Confirm your password"
+                      required
+                    />
+                    <span class="icon is-small is-left">
+                      <i class="fas fa-lock"></i>
+                    </span>
+                  </div>
+                </div>
+
+                <div v-if="!isRegistering" class="field">
                   <label class="checkbox">
                     <input type="checkbox" />
                     Remember me
@@ -74,7 +111,7 @@ function handleLogin() {
                       type="submit"
                       :class="{ 'is-loading': isLoading }"
                     >
-                      Sign In
+                      {{ isRegistering ? 'Create Account' : 'Sign In' }}
                     </button>
                   </div>
                 </div>
@@ -82,8 +119,10 @@ function handleLogin() {
             </div>
 
             <p class="has-text-centered has-text-grey-light is-size-7 mt-4">
-              Don't have an account?
-              <a class="has-text-link-light">Contact your administrator</a>
+              {{ isRegistering ? 'Already have an account?' : "Don't have an account?" }}
+              <a class="has-text-link-light" @click="isRegistering = !isRegistering">
+                {{ isRegistering ? 'Sign in' : 'Register' }}
+              </a>
             </p>
           </div>
         </div>
