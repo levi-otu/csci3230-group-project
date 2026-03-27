@@ -1,19 +1,32 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 
+const router = useRouter()
+const { login, register, error: authError, isLoading } = useAuth()
+
+const username = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
-const name = ref('')
-const isLoading = ref(false)
 const isRegistering = ref(false)
+const localError = ref<string | null>(null)
 
-function handleSubmit() {
-  isLoading.value = true
-  // TODO: implement auth
-  setTimeout(() => {
-    isLoading.value = false
-  }, 1000)
+async function handleSubmit() {
+  localError.value = null
+
+  if (isRegistering.value) {
+    if (password.value !== confirmPassword.value) {
+      localError.value = 'Passwords do not match'
+      return
+    }
+    const success = await register(username.value, email.value, password.value)
+    if (success) router.push('/')
+  } else {
+    const success = await login(username.value, password.value)
+    if (success) router.push('/')
+  }
 }
 </script>
 
@@ -32,15 +45,19 @@ function handleSubmit() {
             </div>
 
             <div class="box">
+              <div v-if="localError || authError" class="notification is-danger is-light">
+                {{ localError || authError }}
+              </div>
+
               <form @submit.prevent="handleSubmit">
-                <div v-if="isRegistering" class="field">
-                  <label class="label">Name</label>
+                <div class="field">
+                  <label class="label">Username</label>
                   <div class="control has-icons-left">
                     <input
-                      v-model="name"
+                      v-model="username"
                       class="input"
                       type="text"
-                      placeholder="Your full name"
+                      placeholder="Your username"
                       required
                     />
                     <span class="icon is-small is-left">
@@ -49,7 +66,7 @@ function handleSubmit() {
                   </div>
                 </div>
 
-                <div class="field">
+                <div v-if="isRegistering" class="field">
                   <label class="label">Email</label>
                   <div class="control has-icons-left">
                     <input
