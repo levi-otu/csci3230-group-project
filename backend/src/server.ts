@@ -1,6 +1,10 @@
 import app from './app'
 import http from 'http'
 import debugModule from 'debug'
+import sequelize from './db'
+
+// Import models to register them with Sequelize
+import './models'
 
 const debug = debugModule('backend:server')
 
@@ -9,9 +13,15 @@ app.set('port', port)
 
 const server = http.createServer(app)
 
-server.listen(port)
-server.on('error', onError)
-server.on('listening', onListening)
+sequelize.authenticate().then(() => {
+  console.log('Database connection established')
+  server.listen(port)
+  server.on('error', onError)
+  server.on('listening', onListening)
+}).catch((err) => {
+  console.error('Failed to connect to database:', err)
+  process.exit(1)
+})
 
 function normalizePort(val: string): number | string | false {
   const parsed = parseInt(val, 10)
