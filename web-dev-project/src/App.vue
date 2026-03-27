@@ -1,13 +1,24 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { ref } from 'vue'
+import { RouterView } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
 import 'bulma/css/bulma.css'
+
+const sidebarOpen = ref(true)
 </script>
 
 <template>
   <div class="columns is-fullwidth is-gapless is-fluid" id="main-container">
-    <div class="column is-narrow has-background-dark">
-      <Sidebar />
+    <div class="sidebar-column has-background-dark" :class="{ 'is-collapsed': !sidebarOpen }">
+      <div class="sidebar-content">
+        <Sidebar />
+      </div>
+      <button
+        class="sidebar-toggle button is-small is-dark"
+        @click="sidebarOpen = !sidebarOpen"
+      >
+        {{ sidebarOpen ? '◀' : '▶' }}
+      </button>
     </div>
 
     <div class="column" id="content-column">
@@ -17,75 +28,50 @@ import 'bulma/css/bulma.css'
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
-
 #main-container {
   height: 100vh;
   width: 100vw;
 }
+
 #content-column {
   flex: 1 1 0;
   min-width: 0;
   overflow: auto;
+}
+
+.sidebar-column {
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  min-height: 100vh;
+  transition: width 0.3s ease;
+  overflow: hidden;
+}
+
+.sidebar-column.is-collapsed {
+  width: 40px;
+}
+
+.sidebar-content {
+  flex: 1;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar-column.is-collapsed .sidebar-content {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebar-toggle {
+  align-self: center;
+  margin-bottom: 0.75rem;
+  border: none;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.sidebar-toggle:hover {
+  opacity: 1;
 }
 </style>
