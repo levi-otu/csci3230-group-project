@@ -17,7 +17,7 @@ import CodeEditor from '../components/CodeEditor.vue'
     </div>
   </div> -->
   <!-- </main> -->
-  <div class="columns is-2 is-multiline has-background-black-ter p-2 m-0" style="height: 100%">
+  <div class="columns is-2 is-multiline has-background-white-bis p-2 m-0" style="height: 100%">
     <div class="column is-half">
       <div class="has-background-dark  has-radius-normal window"><CodeEditor/></div>
     </div>
