@@ -92,12 +92,19 @@ const hideLayout = computed(() => route.meta.hideLayout === true)
 #main-container {
   flex: 1;
   min-height: 0;
+  margin-bottom: 0 !important;
+  /* overflow: hidden; */
 }
 
 #content-column {
   flex: 1 1 0;
   min-width: 0;
-  overflow: auto;
+  min-height: 0;
+
+  display: flex; 
+  flex-direction: column;
+  height: 100%;
+
 }
 
 .sidebar-column {

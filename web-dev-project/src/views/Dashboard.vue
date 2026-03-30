@@ -2,6 +2,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import 'bulma/css/bulma.css'
 import CodeEditor from '../components/CodeEditor.vue'
+import Agenda from '@/components/Agenda.vue'
 
 const containerRef = ref<HTMLElement | null>(null)
 const leftColumnRef = ref<HTMLElement | null>(null)
@@ -19,11 +20,11 @@ const MIN_TOP_WIDTH = 15
 type ResizeAxis = 'x' | 'y'
 
 type ResizeConfig = {
-  axis: ResizeAxis
-  min: number
-  max: number
-  getBounds: () => DOMRect | null
-  apply: (nextValue: number) => void
+  axis: ResizeAxis,
+  min: number,
+  max: number,
+  getBounds: () => DOMRect | null,
+  apply: (nextValue: number) => void,
 }
 
 const activeResize = ref<ResizeConfig | null>(null)
@@ -116,14 +117,14 @@ onBeforeUnmount(() => {
 <template>
   <div class="dashboard-layout has-background-white-bis p-2 m-0" ref="containerRef">
     <div class="left-column" ref="leftColumnRef" :style="{ width: `${leftWidth}%` }">
-      <div class="has-background-dark has-radius-normal window left-top" :style="{ flex: `0 0 ${leftTopHeight}%` }"><CodeEditor /></div>
+      <div class="has-background-dark has-radius-normal window left-top" :style="{ flex: `0 0 calc(${leftTopHeight}% - 13px)` }"><CodeEditor /></div>
       <button
         class="resize-handle-row"
         type="button"
         aria-label="Resize left panels"
         @mousedown="startLeftRowResize"
       ></button>
-      <div class="has-background-dark has-radius-normal window left-bottom" :style="{ flex: `0 0 ${100 - leftTopHeight}%` }">Bottom Left Panel</div>
+      <div class="has-background-dark has-radius-normal window left-bottom" :style="{ flex: `0 0 calc(${100 - leftTopHeight}% - 13px)` }"><Agenda/></div>
     </div>
 
      <!--button fgor resizing , all have decided funxtion, you preolly have to define more if more column-->
@@ -135,14 +136,14 @@ onBeforeUnmount(() => {
     ></button>
 
     <div class="right-column" ref="rightColumnRef">
-      <div class="has-background-dark has-radius-normal window right-top" :style="{ flex: `0 0 ${rightTopHeight}%` }">Top Right Tab</div>
+      <div class="has-background-dark has-radius-normal window right-top" :style="{ flex: `0 0 calc(${rightTopHeight}% - 13px)` }">Top Right Tab</div>
       <button
         class="resize-handle-row"
         type="button"
         aria-label="Resize right panels"
         @mousedown="startRightRowResize"
       ></button>
-      <div class="has-background-dark has-radius-normal window right-bottom" :style="{ flex: `0 0 ${100 - rightTopHeight}%` }">Bottom Right Tab</div>
+      <div class="has-background-dark has-radius-normal window right-bottom" :style="{ flex: `0 0 calc(${100 - rightTopHeight}% - 13px)` }">Bottom Right Tab</div>
     </div>
   </div>
 </template>
