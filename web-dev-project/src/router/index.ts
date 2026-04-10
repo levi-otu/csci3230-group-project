@@ -4,6 +4,9 @@ import WorkSession from '../views/WorkSession.vue'
 import Files from '../views/Files.vue'
 import Login from '../views/Login.vue'
 import Admin from '../views/Admin.vue'
+import Sessions from '../views/Sessions.vue'
+import SessionForm from '../views/SessionForm.vue'
+import SessionDetail from '../views/SessionDetail.vue'
 
 type Role = 'admin' | 'instructor' | 'student'
 
@@ -35,6 +38,36 @@ const router = createRouter({
       name: 'work-session',
       component: WorkSession,
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/work-session/:id',
+      name: 'work-session-detail',
+      component: WorkSession,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/sessions',
+      name: 'sessions',
+      component: Sessions,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/sessions/new',
+      name: 'session-new',
+      component: SessionForm,
+      meta: { requiresAuth: true, roles: ['instructor', 'admin'] },
+    },
+    {
+      path: '/sessions/:id',
+      name: 'session-detail',
+      component: SessionDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/sessions/:id/edit',
+      name: 'session-edit',
+      component: SessionForm,
+      meta: { requiresAuth: true, roles: ['instructor', 'admin'] },
     },
     {
       path: '/files',
