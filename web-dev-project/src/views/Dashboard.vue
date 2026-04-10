@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAuth } from '@/composables/useAuth'
+import BarChart from '@/components/charts/BarChart.vue'
+import DonutChart from '@/components/charts/DonutChart.vue'
+import LineChart from '@/components/charts/LineChart.vue'
 
 const { user } = useAuth()
 
@@ -10,6 +13,63 @@ const greeting = computed(() => {
   if (hour < 18) return 'Good afternoon'
   return 'Good evening'
 })
+
+// Mock data — replace with API calls once backend endpoints exist
+
+// Student: topics covered across recent sessions
+const studentTopics = [
+  { label: 'JS Basics', value: 8 },
+  { label: 'CSS', value: 5 },
+  { label: 'SVG', value: 3 },
+  { label: 'D3', value: 2 },
+  { label: 'Vue', value: 6 },
+]
+
+// Student: hours studied per week
+const studentHours = [
+  { label: 'Wk 1', value: 2 },
+  { label: 'Wk 2', value: 3.5 },
+  { label: 'Wk 3', value: 5 },
+  { label: 'Wk 4', value: 4 },
+  { label: 'Wk 5', value: 6.5 },
+  { label: 'Wk 6', value: 5.5 },
+]
+
+// Instructor: sessions taught per week
+const instructorSessions = [
+  { label: 'Wk 1', value: 4 },
+  { label: 'Wk 2', value: 6 },
+  { label: 'Wk 3', value: 5 },
+  { label: 'Wk 4', value: 7 },
+  { label: 'Wk 5', value: 8 },
+  { label: 'Wk 6', value: 6 },
+]
+
+// Instructor: topic breakdown
+const instructorTopics = [
+  { label: 'JavaScript', value: 12 },
+  { label: 'Vue', value: 8 },
+  { label: 'CSS/Bulma', value: 6 },
+  { label: 'SVG/D3', value: 4 },
+]
+
+// Admin: platform-wide role distribution
+const adminRoles = [
+  { label: 'Students', value: 42 },
+  { label: 'Instructors', value: 8 },
+  { label: 'Admins', value: 2 },
+]
+
+// Admin: active sessions per day
+const adminActivity = [
+  { label: 'Mon', value: 12 },
+  { label: 'Tue', value: 18 },
+  { label: 'Wed', value: 15 },
+  { label: 'Thu', value: 22 },
+  { label: 'Fri', value: 19 },
+  { label: 'Sat', value: 8 },
+  { label: 'Sun', value: 5 },
+]
 </script>
 
 <template>
@@ -26,16 +86,135 @@ const greeting = computed(() => {
       </p>
     </header>
 
-    <section v-if="user?.role === 'admin'" class="role-content">
-      <p class="has-text-grey-light">Admin content coming soon...</p>
+    <!-- Student -->
+    <section v-if="user?.role === 'student'">
+      <div class="columns is-multiline">
+        <div class="column is-3">
+          <div class="stat-card">
+            <p class="stat-label">Sessions Attended</p>
+            <p class="stat-value">14</p>
+          </div>
+        </div>
+        <div class="column is-3">
+          <div class="stat-card">
+            <p class="stat-label">Hours Studied</p>
+            <p class="stat-value">26.5</p>
+          </div>
+        </div>
+        <div class="column is-3">
+          <div class="stat-card">
+            <p class="stat-label">Topics Covered</p>
+            <p class="stat-value">24</p>
+          </div>
+        </div>
+        <div class="column is-3">
+          <div class="stat-card">
+            <p class="stat-label">Upcoming</p>
+            <p class="stat-value">2</p>
+          </div>
+        </div>
+
+        <div class="column is-7">
+          <div class="chart-card">
+            <BarChart title="Topics Covered" :data="studentTopics" color="#485fc7" />
+          </div>
+        </div>
+        <div class="column is-5">
+          <div class="chart-card">
+            <LineChart title="Hours Studied per Week" :data="studentHours" color="#48c774" />
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section v-else-if="user?.role === 'instructor'" class="role-content">
-      <p class="has-text-grey-light">Instructor content coming soon...</p>
+    <!-- Instructor -->
+    <section v-else-if="user?.role === 'instructor'">
+      <div class="columns is-multiline">
+        <div class="column is-3">
+          <div class="stat-card">
+            <p class="stat-label">Sessions Taught</p>
+            <p class="stat-value">36</p>
+          </div>
+        </div>
+        <div class="column is-3">
+          <div class="stat-card">
+            <p class="stat-label">Active Students</p>
+            <p class="stat-value">18</p>
+          </div>
+        </div>
+        <div class="column is-3">
+          <div class="stat-card">
+            <p class="stat-label">Hours Tutored</p>
+            <p class="stat-value">54</p>
+          </div>
+        </div>
+        <div class="column is-3">
+          <div class="stat-card">
+            <p class="stat-label">Avg Rating</p>
+            <p class="stat-value">4.8</p>
+          </div>
+        </div>
+
+        <div class="column is-7">
+          <div class="chart-card">
+            <LineChart
+              title="Sessions per Week"
+              :data="instructorSessions"
+              color="#485fc7"
+            />
+          </div>
+        </div>
+        <div class="column is-5">
+          <div class="chart-card">
+            <DonutChart title="Topics Taught" :data="instructorTopics" />
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section v-else-if="user?.role === 'student'" class="role-content">
-      <p class="has-text-grey-light">Student content coming soon...</p>
+    <!-- Admin -->
+    <section v-else-if="user?.role === 'admin'">
+      <div class="columns is-multiline">
+        <div class="column is-3">
+          <div class="stat-card">
+            <p class="stat-label">Total Users</p>
+            <p class="stat-value">52</p>
+          </div>
+        </div>
+        <div class="column is-3">
+          <div class="stat-card">
+            <p class="stat-label">Active Sessions</p>
+            <p class="stat-value">7</p>
+          </div>
+        </div>
+        <div class="column is-3">
+          <div class="stat-card">
+            <p class="stat-label">Sessions Today</p>
+            <p class="stat-value">22</p>
+          </div>
+        </div>
+        <div class="column is-3">
+          <div class="stat-card">
+            <p class="stat-label">Uptime</p>
+            <p class="stat-value">99.9%</p>
+          </div>
+        </div>
+
+        <div class="column is-7">
+          <div class="chart-card">
+            <BarChart
+              title="Sessions This Week"
+              :data="adminActivity"
+              color="#3298dc"
+            />
+          </div>
+        </div>
+        <div class="column is-5">
+          <div class="chart-card">
+            <DonutChart title="User Roles" :data="adminRoles" />
+          </div>
+        </div>
+      </div>
     </section>
 
     <section v-else class="role-content">
@@ -48,6 +227,36 @@ const greeting = computed(() => {
 .dashboard {
   height: 100%;
   overflow-y: auto;
+  background-color: #2c3040;
+}
+
+.stat-card {
+  background-color: #373b4d;
+  border-radius: 8px;
+  padding: 1.25rem;
+  border: 1px solid #4a5063;
+}
+
+.stat-label {
+  color: #9ca1b3;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+
+.stat-value {
+  color: #fff;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.chart-card {
+  background-color: #373b4d;
+  border-radius: 8px;
+  padding: 1.25rem;
+  border: 1px solid #4a5063;
+  height: 100%;
 }
 
 .role-content {
