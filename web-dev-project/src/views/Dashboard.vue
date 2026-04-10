@@ -75,10 +75,10 @@ const adminActivity = [
 <template>
   <main class="dashboard p-5">
     <header class="mb-5">
-      <h1 class="title is-3 has-text-white">
+      <h1 class="title is-3">
         {{ greeting }}, {{ user?.username || 'Guest' }}
       </h1>
-      <p class="subtitle is-6 has-text-grey-light">
+      <p class="subtitle is-6 has-text-grey">
         <span v-if="user?.role === 'admin'">Admin Dashboard</span>
         <span v-else-if="user?.role === 'instructor'">Instructor Dashboard</span>
         <span v-else-if="user?.role === 'student'">Student Dashboard</span>
@@ -227,14 +227,24 @@ const adminActivity = [
 .dashboard {
   height: 100%;
   overflow-y: auto;
-  background-color: #2c3040;
+  background-color: hsl(0, 0%, 98%);
 }
 
-.stat-card {
-  background-color: #373b4d;
+.dashboard .title,
+.dashboard .subtitle {
+  color: #2c3040 !important;
+}
+
+.stat-card,
+.chart-card {
+  background-color: var(--bulma-dark);
   border-radius: 8px;
   padding: 1.25rem;
-  border: 1px solid #4a5063;
+  border: 3px solid var(--bulma-primary-05);
+}
+
+.chart-card {
+  height: 100%;
 }
 
 .stat-label {
@@ -249,14 +259,6 @@ const adminActivity = [
   color: #fff;
   font-size: 1.75rem;
   font-weight: 700;
-}
-
-.chart-card {
-  background-color: #373b4d;
-  border-radius: 8px;
-  padding: 1.25rem;
-  border: 1px solid #4a5063;
-  height: 100%;
 }
 
 .role-content {
