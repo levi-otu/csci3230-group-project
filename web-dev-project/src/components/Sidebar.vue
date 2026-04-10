@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 
 defineProps<{ collapsed: boolean }>()
 
 const route = useRoute()
+const { user } = useAuth()
 </script>
 
 <template>
@@ -25,6 +27,12 @@ const route = useRoute()
         <RouterLink to="/files" :class="{ 'is-active': route.path === '/files' }">
           <span class="icon"><i class="fas fa-folder"></i></span>
           <span v-show="!collapsed" class="ml-2">Files</span>
+        </RouterLink>
+      </li>
+      <li v-if="user?.role === 'admin'">
+        <RouterLink to="/admin" :class="{ 'is-active': route.path === '/admin' }">
+          <span class="icon"><i class="fas fa-user-shield"></i></span>
+          <span v-show="!collapsed" class="ml-2">Admin</span>
         </RouterLink>
       </li>
     </ul>
