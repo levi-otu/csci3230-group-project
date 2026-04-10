@@ -18,7 +18,13 @@ const { user } = useAuth()
         </RouterLink>
       </li>
       <li>
-        <RouterLink to="/work-session" :class="{ 'is-active': route.path === '/work-session' }">
+        <RouterLink to="/sessions" :class="{ 'is-active': route.path.startsWith('/sessions') }">
+          <span class="icon"><i class="fas fa-calendar-alt"></i></span>
+          <span v-show="!collapsed" class="ml-2">Sessions</span>
+        </RouterLink>
+      </li>
+      <li>
+        <RouterLink to="/work-session" :class="{ 'is-active': route.path.startsWith('/work-session') }">
           <span class="icon"><i class="fas fa-chalkboard-teacher"></i></span>
           <span v-show="!collapsed" class="ml-2">Work Session</span>
         </RouterLink>

@@ -1,8 +1,20 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import 'bulma/css/bulma.css'
 import CodeEditor from '../components/CodeEditor.vue'
 import Agenda from '@/components/Agenda.vue'
+import { useSessions, type Session } from '@/composables/useSessions'
+
+const route = useRoute()
+const { getSession } = useSessions()
+
+const sessionId = computed(() => {
+  const id = route.params.id
+  return id ? Number(id) : null
+})
+
+const session = ref<Session | null>(null)
 
 const containerRef = ref<HTMLElement | null>(null)
 const leftColumnRef = ref<HTMLElement | null>(null)
@@ -101,9 +113,14 @@ function startRightRowResize(event: MouseEvent) {
   })
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('mousemove', onResize)
   window.addEventListener('mouseup', stopResize)
+
+  if (sessionId.value !== null) {
+    const result = await getSession(sessionId.value)
+    if (result) session.value = result
+  }
 })
 
 onBeforeUnmount(() => {
@@ -115,6 +132,20 @@ onBeforeUnmount(() => {
 
 
 <template>
+  <div class="work-session-wrapper">
+    <header v-if="session" class="session-header">
+      <div>
+        <span class="session-topic-pill">{{ session.topic }}</span>
+        <h2 class="session-header-title">{{ session.title }}</h2>
+      </div>
+      <span class="tag is-success" v-if="session.status === 'active'">Live</span>
+      <span class="tag is-info" v-else-if="session.status === 'scheduled'">Scheduled</span>
+      <span class="tag" v-else>{{ session.status }}</span>
+    </header>
+    <header v-else-if="sessionId !== null" class="session-header">
+      <p class="has-text-grey">Loading session...</p>
+    </header>
+
   <div class="work-session-layout has-background-white-bis p-2 m-0" ref="containerRef">
     <div class="left-column" ref="leftColumnRef" :style="{ width: `${leftWidth}%` }">
       <div class="has-background-dark has-radius-normal window left-top" :style="{ flex: `0 0 calc(${leftTopHeight}% - 13px)` }"><CodeEditor /></div>
@@ -146,12 +177,45 @@ onBeforeUnmount(() => {
       <div class="has-background-dark has-radius-normal window right-bottom" :style="{ flex: `0 0 calc(${100 - rightTopHeight}% - 13px)` }">Bottom Right Tab</div>
     </div>
   </div>
+  </div>
 </template>
 
 
 <style>
-.work-session-layout {
+.work-session-wrapper {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: hsl(0, 0%, 98%);
+}
+
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: #fff;
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.session-topic-pill {
+  display: inline-block;
+  font-size: 0.7rem;
+  color: #6b7080;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.15rem;
+}
+
+.session-header-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3040;
+  margin: 0;
+}
+
+.work-session-layout {
+  flex: 1;
   min-height: 0;
   display: flex;
   align-items: stretch;
