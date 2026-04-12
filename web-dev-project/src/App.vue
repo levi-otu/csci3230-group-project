@@ -2,11 +2,14 @@
 import { ref, computed } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import Sidebar from './components/Sidebar.vue'
+import { useAuth } from '@/composables/useAuth'
 import 'bulma/css/bulma.css'
 
 const route = useRoute()
 const sidebarOpen = ref(true)
 const hideLayout = computed(() => route.meta.hideLayout === true)
+
+const { user, logout } = useAuth()
 </script>
 
 <template>
@@ -44,9 +47,40 @@ const hideLayout = computed(() => route.meta.hideLayout === true)
           </div>
         </div>
         <div class="navbar-end">
-          <div class="navbar-item">
-            <span class="icon"><i class="fas fa-user"></i></span>
-            <span class="ml-1">User</span>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link">
+              <span class="icon"><i class="fas fa-user-circle"></i></span>
+              <span class="ml-1">{{ user?.username || 'Guest' }}</span>
+            </a>
+
+            <div class="navbar-dropdown is-right is-boxed">
+              <div class="navbar-item is-flex is-flex-direction-column is-align-items-flex-start">
+                <span class="has-text-weight-semibold">{{ user?.username || 'Guest' }}</span>
+                <span class="is-size-7 has-text-grey">
+                  {{ user?.email || 'Not signed in' }}
+                </span>
+                <span
+                  v-if="user?.role"
+                  class="tag is-small is-info is-light mt-1"
+                >
+                  {{ user.role }}
+                </span>
+              </div>
+              <hr class="navbar-divider" />
+              <a class="navbar-item">
+                <span class="icon"><i class="fas fa-user"></i></span>
+                <span class="ml-1">Profile</span>
+              </a>
+              <a class="navbar-item">
+                <span class="icon"><i class="fas fa-cog"></i></span>
+                <span class="ml-1">Settings</span>
+              </a>
+              <hr class="navbar-divider" />
+              <a class="navbar-item has-text-danger" @click="logout">
+                <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
+                <span class="ml-1">Log out</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>

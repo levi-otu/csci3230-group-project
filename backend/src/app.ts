@@ -7,6 +7,7 @@ import cors from 'cors'
 import indexRouter from './routes/index'
 import usersRouter from './routes/users'
 import authRouter from './routes/auth'
+import sessionsRouter from './routes/sessions'
 
 const app = express()
 
@@ -20,5 +21,6 @@ app.use(express.static(path.join(__dirname, '../public')))
 app.use('/', indexRouter)
 app.use('/users', usersRouter)
 app.use('/auth', authRouter)
+app.use('/sessions', sessionsRouter)
 
 export default app
