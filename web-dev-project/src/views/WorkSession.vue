@@ -5,9 +5,12 @@ import 'bulma/css/bulma.css'
 import CodeEditor from '../components/CodeEditor.vue'
 import Agenda from '@/components/Agenda.vue'
 import { useSessions, type Session } from '@/composables/useSessions'
+import Chat from '@/components/Chat.vue'
+import { useAuth } from '@/composables/useAuth'
 
 const route = useRoute()
 const { getSession } = useSessions()
+const { user } = useAuth()
 
 const sessionId = computed(() => {
   const id = route.params.id
@@ -174,7 +177,7 @@ onBeforeUnmount(() => {
         aria-label="Resize right panels"
         @mousedown="startRightRowResize"
       ></button>
-      <div class="has-background-dark has-radius-normal window right-bottom" :style="{ flex: `0 0 calc(${100 - rightTopHeight}% - 13px)` }">Bottom Right Tab</div>
+      <div class="has-background-dark has-radius-normal window right-bottom" :style="{ flex: `0 0 calc(${100 - rightTopHeight}% - 13px)` }"><Chat :user = "user?.username"/></div>
     </div>
   </div>
   </div>
