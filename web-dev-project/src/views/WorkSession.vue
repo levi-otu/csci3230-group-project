@@ -5,9 +5,13 @@ import 'bulma/css/bulma.css'
 import CodeEditor from '../components/CodeEditor.vue'
 import Agenda from '@/components/Agenda.vue'
 import { useSessions, type Session } from '@/composables/useSessions'
+import Chat from '@/components/Chat.vue'
+import { useAuth } from '@/composables/useAuth'
+import DrawingBoard from '@/components/DrawingBoard.vue'
 
 const route = useRoute()
 const { getSession } = useSessions()
+const { user } = useAuth()
 
 const sessionId = computed(() => {
   const id = route.params.id
@@ -167,14 +171,14 @@ onBeforeUnmount(() => {
     ></button>
 
     <div class="right-column" ref="rightColumnRef">
-      <div class="has-background-dark has-radius-normal window right-top" :style="{ flex: `0 0 calc(${rightTopHeight}% - 13px)` }">Top Right Tab</div>
+      <div class="has-background-dark has-radius-normal window right-top" :style="{ flex: `0 0 calc(${rightTopHeight}% - 13px)` }"><DrawingBoard/></div>
       <button
         class="resize-handle-row"
         type="button"
         aria-label="Resize right panels"
         @mousedown="startRightRowResize"
       ></button>
-      <div class="has-background-dark has-radius-normal window right-bottom" :style="{ flex: `0 0 calc(${100 - rightTopHeight}% - 13px)` }">Bottom Right Tab</div>
+      <div class="has-background-dark has-radius-normal window right-bottom" :style="{ flex: `0 0 calc(${100 - rightTopHeight}% - 13px)` }"><Chat :user = "user?.username"/></div>
     </div>
   </div>
   </div>
