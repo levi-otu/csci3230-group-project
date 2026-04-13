@@ -7,6 +7,7 @@ import Agenda from '@/components/Agenda.vue'
 import { useSessions, type Session } from '@/composables/useSessions'
 import Chat from '@/components/Chat.vue'
 import { useAuth } from '@/composables/useAuth'
+import DrawingBoard from '@/components/DrawingBoard.vue'
 
 const route = useRoute()
 const { getSession } = useSessions()
@@ -170,7 +171,7 @@ onBeforeUnmount(() => {
     ></button>
 
     <div class="right-column" ref="rightColumnRef">
-      <div class="has-background-dark has-radius-normal window right-top" :style="{ flex: `0 0 calc(${rightTopHeight}% - 13px)` }">Top Right Tab</div>
+      <div class="has-background-dark has-radius-normal window right-top" :style="{ flex: `0 0 calc(${rightTopHeight}% - 13px)` }"><DrawingBoard/></div>
       <button
         class="resize-handle-row"
         type="button"

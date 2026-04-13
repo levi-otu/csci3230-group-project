@@ -28,12 +28,12 @@ const enterChat = () =>{
 </script>
 
 <template>
-    <div class="px-2 py-2 is-flex is-flex-direction-column" style="height: 100%">
+    <div class="px-2 is-flex is-flex-direction-column" style="height: 100%">
         <header>
             <h1 class="is-uppercase has-text-weight-bold is-size-4">Chat</h1>
         </header>
 
-        <div id="chat-box" class="my-2 has-radius-normal">
+        <div id="chat-box" class="my-2 has-radius-normal p-2">
             <div v-for="item in chatList.slice().reverse()">
                 {{item.user}}: {{item.text}}
             </div>
