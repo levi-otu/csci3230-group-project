@@ -175,10 +175,9 @@ onBeforeUnmount(() => {
             <div
                 id="toolbar-div"
                 class="box is-flex-direction-row is-flex is-align-items-center is-gap-2"
-                @mousedown.self="startDrag"
                 :style="{ left: `${toolbarPos.x}px`, top: `${toolbarPos.y}px` }"
             >
-                <p class="drag-handle">⠿ Drag</p>
+                <p class="drag-handle" @mousedown="startDrag">⠿ Drag</p>
                 <div class="field m-0">
                     <label class="mr-1">Color</label>
                     <input type="color" v-model="color" />
