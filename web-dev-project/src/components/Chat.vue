@@ -7,7 +7,7 @@ const props = defineProps({
 });
 
 const chatList = ref([
-   {user: "test", text:"test"}, 
+   {}, 
 ]);
 
 const inputText = ref('');
