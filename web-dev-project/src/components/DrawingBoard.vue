@@ -11,6 +11,9 @@ const brushSize = ref(3)
 const isEraser = ref(false)
 const toolbarPos = ref({ x: 20, y: 20 })
 
+const cursorRef = ref<HTMLDivElement | null>(null);
+const cursorPos = ref({x: -100, y:-100})
+
 function resizeCanvas() {
     const canvas = canvasRef.value
     if (!canvas) {
@@ -76,6 +79,13 @@ function startDrawing(event: PointerEvent) {
     const point = getPointerPoint(event)
     ctx.beginPath()
     ctx.moveTo(point.x, point.y)
+}
+
+function handleMouseMove(event: PointerEvent){
+    draw(event);
+
+    const point = getPointerPoint(event);
+    cursorPos.value = {x: point.x, y: point.y};
 }
 
 function draw(event: PointerEvent) {
@@ -172,6 +182,13 @@ onBeforeUnmount(() => {
             <h1 class="is-uppercase has-text-weight-bold is-size-4">Drawing Board</h1>
         </header>
         <div id="canvas-div">
+            <div id="brush-outline" :style="{
+                left: `${cursorPos.x}px`,
+                top: `${cursorPos.y}px`,
+                width: `${brushSize}px`,
+                height: `${brushSize}px`,
+                borderColor: isEraser ? `${color}` : 'white',
+            }"></div>
             <div
                 id="toolbar-div"
                 class="box is-flex-direction-row is-flex is-align-items-center is-gap-2"
@@ -196,7 +213,7 @@ onBeforeUnmount(() => {
                 ref="canvasRef"
                 class="has-radius-normal"
                 @pointerdown="startDrawing"
-                @pointermove="draw"
+                @pointermove="handleMouseMove"
                 @pointerup="stopDrawing"
                 @pointerleave="stopDrawing"
                 @pointercancel="stopDrawing"
@@ -218,6 +235,7 @@ onBeforeUnmount(() => {
     width: 100%;
         height: 100%;
         touch-action: none;
+    cursor: none;
 }
 
 #canvas-div {
@@ -239,4 +257,15 @@ onBeforeUnmount(() => {
         cursor: move;
         margin: 0;
 }
+
+#brush-outline {
+    position: absolute;
+    pointer-events: none;
+    z-index: 1;
+    border: 1px solid white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
 </style>
