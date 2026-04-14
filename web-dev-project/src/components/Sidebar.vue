@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 
 defineProps<{ collapsed: boolean }>()
 
 const route = useRoute()
+const { user } = useAuth()
 const dashboardTo = computed(() => {
   const roomId = route.params.roomId
   return {
@@ -32,7 +34,13 @@ const workSessionTo = computed(() => {
         </RouterLink>
       </li>
       <li>
-        <RouterLink :to="workSessionTo" :class="{ 'is-active': route.path.startsWith('/work-session') }">
+        <RouterLink to="/sessions" :class="{ 'is-active': route.path.startsWith('/sessions') }">
+          <span class="icon"><i class="fas fa-calendar-alt"></i></span>
+          <span v-show="!collapsed" class="ml-2">Sessions</span>
+        </RouterLink>
+      </li>
+      <li>
+        <RouterLink to="/work-session" :class="{ 'is-active': route.path.startsWith('/work-session') }">
           <span class="icon"><i class="fas fa-chalkboard-teacher"></i></span>
           <span v-show="!collapsed" class="ml-2">Work Session</span>
         </RouterLink>
@@ -41,6 +49,12 @@ const workSessionTo = computed(() => {
         <RouterLink to="/files" :class="{ 'is-active': route.path === '/files' }">
           <span class="icon"><i class="fas fa-folder"></i></span>
           <span v-show="!collapsed" class="ml-2">Files</span>
+        </RouterLink>
+      </li>
+      <li v-if="user?.role === 'admin'">
+        <RouterLink to="/admin" :class="{ 'is-active': route.path === '/admin' }">
+          <span class="icon"><i class="fas fa-user-shield"></i></span>
+          <span v-show="!collapsed" class="ml-2">Admin</span>
         </RouterLink>
       </li>
     </ul>

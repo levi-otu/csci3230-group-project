@@ -33,3 +33,27 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
     res.status(401).json({ error: 'Invalid or expired token' })
   }
 }
+
+type Role = AuthPayload['role']
+
+/**
+ * Middleware factory that restricts a route to one or more roles.
+ * Must be used after `authenticate`. Returns 403 if the user's role
+ * is not in the allowed list.
+ *
+ * Example:
+ *   router.get('/admin/users', authenticate, authorize('admin'), handler)
+ */
+export function authorize(...roles: Role[]) {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      res.status(401).json({ error: 'Not authenticated' })
+      return
+    }
+    if (!roles.includes(req.user.role)) {
+      res.status(403).json({ error: 'Forbidden: insufficient role' })
+      return
+    }
+    next()
+  }
+}

@@ -28,9 +28,9 @@ function renderChart() {
 
   container.innerHTML = ''
 
-  const width = Math.max(280, container.clientWidth)
-  const height = Math.max(180, container.clientHeight)
-  const margin = { top: 20, right: 20, bottom: 30, left: 90 }
+  const width = Math.max(160, container.clientWidth)
+  const height = Math.max(120, container.clientHeight)
+  const margin = { top: 16, right: 16, bottom: 24, left: 70 }
 
   const completed = props.items.filter((item) => item.completed).length
   const pending = props.items.length - completed
@@ -59,7 +59,7 @@ function renderChart() {
     .range([margin.left, width - margin.right])
 
   const y = d3
-    .scaleBand<string>()
+    .scaleBand()
     .domain(data.map((d) => d.label))
     .range([margin.top, height - margin.bottom])
     .padding(0.35)

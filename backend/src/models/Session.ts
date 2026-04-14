@@ -6,8 +6,12 @@ class Session extends Model {
   declare id: number
   declare title: string
   declare description: string | null
+  declare topic: string
   declare createdBy: number
-  declare status: 'active' | 'completed' | 'cancelled'
+  declare scheduledAt: Date
+  declare durationMinutes: number
+  declare maxParticipants: number | null
+  declare status: 'scheduled' | 'active' | 'completed' | 'cancelled'
   declare readonly createdAt: Date
   declare readonly updatedAt: Date
 }
@@ -27,6 +31,11 @@ Session.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    topic: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      defaultValue: 'General',
+    },
     createdBy: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -36,10 +45,26 @@ Session.init(
         key: 'id',
       },
     },
-    status: {
-      type: DataTypes.ENUM('active', 'completed', 'cancelled'),
+    scheduledAt: {
+      type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: 'active',
+      field: 'scheduled_at',
+    },
+    durationMinutes: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 60,
+      field: 'duration_minutes',
+    },
+    maxParticipants: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: 'max_participants',
+    },
+    status: {
+      type: DataTypes.ENUM('scheduled', 'active', 'completed', 'cancelled'),
+      allowNull: false,
+      defaultValue: 'scheduled',
     },
   },
   {
