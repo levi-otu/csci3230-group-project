@@ -6,9 +6,12 @@ const props = defineProps({
     user: String,
 });
 
-const chatList = ref([
-   {}, 
-]);
+interface ChatMessage {
+    user: string;
+    text: string;
+}
+
+const chatList = ref<ChatMessage[]>([]);
 
 const inputText = ref('');
 
@@ -37,10 +40,12 @@ function handleNewLine() {
             <h1 class="is-uppercase has-text-weight-bold is-size-4">Chat</h1>
         </header>
 
-        <div id="chat-box" class="my-2 has-radius-normal p-2">
-            <div v-for="item in chatList.slice().reverse()">
-                {{item.user}}: {{item.text}}
-            </div>
+        <div id="chat-box" class="my-2 has-radius-normal p-2" >
+            <template v-if="chatList.length > 0">
+                <div v-for="item in chatList.slice().reverse()">
+                    <span class="has-text-info">{{item.user}}: {{item.text}}</span>
+                </div>
+            </template>
         </div>
 
         <div class="box p-0 mt-auto is-flex is-flex-direction-row has-background-black-ter"
