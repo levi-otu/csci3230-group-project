@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import 'bulma/css/bulma.css'
 import CodeEditor from '../components/CodeEditor.vue'
 import Agenda from '@/components/Agenda.vue'
@@ -8,10 +8,108 @@ import { useSessions, type Session } from '@/composables/useSessions'
 import Chat from '@/components/Chat.vue'
 import { useAuth } from '@/composables/useAuth'
 import DrawingBoard from '@/components/DrawingBoard.vue'
+import CompletionChart from '@/components/CompletionChart.vue'
+
+type AgendaItem = {
+  id: number
+  text: string
+  completed: boolean
+}
 
 const route = useRoute()
+const router = useRouter()
 const { getSession } = useSessions()
 const { user } = useAuth()
+
+const roomMessage = ref('')
+const agendaItems = ref<AgendaItem[]>([])
+
+const currentRoomId = computed(() => {
+  const roomId = route.params.roomId
+  return typeof roomId === 'string' ? roomId : ''
+})
+
+function generateRoomId(): string {
+  const randomChunk = Math.random().toString(36).slice(2, 8)
+  const timeChunk = Date.now().toString(36).slice(-4)
+  return `room-${randomChunk}${timeChunk}`
+}
+
+function sanitizeRoomId(value: string): string {
+  return value.trim().toLowerCase().replace(/\s+/g, '-')
+}
+
+function goToRoom(roomId: string) {
+  const normalized = sanitizeRoomId(roomId)
+  if (!normalized) {
+    return
+  }
+
+  router.push({
+    name: 'work-session',
+    params: { roomId: normalized },
+  })
+  roomMessage.value = ''
+}
+
+function createRoom() {
+  goToRoom(generateRoomId())
+}
+
+async function copyRoomLink() {
+  const roomId = currentRoomId.value
+  if (!roomId) {
+    return
+  }
+
+  const roomUrl = `${window.location.origin}/work-session/${roomId}`
+  try {
+    await navigator.clipboard.writeText(roomUrl)
+    roomMessage.value = 'Room link copied'
+  } catch {
+    roomMessage.value = 'Copy failed. Use the browser URL bar to share.'
+  }
+}
+
+function ensureRoomExists() {
+  if (currentRoomId.value) {
+    return
+  }
+
+  const nextRoomId = generateRoomId()
+  router.replace({
+    name: 'work-session',
+    params: { roomId: nextRoomId },
+  })
+}
+
+function addAgendaItem(text: string) {
+  agendaItems.value.push({
+    id: Date.now(),
+    text,
+    completed: false,
+  })
+}
+
+function toggleAgendaItem(id: number, nextValue: boolean) {
+  const item = agendaItems.value.find((entry) => entry.id === id)
+  if (!item) {
+    return
+  }
+  item.completed = nextValue
+}
+
+function editAgendaItem(id: number, nextText: string) {
+  const item = agendaItems.value.find((entry) => entry.id === id)
+  if (!item) {
+    return
+  }
+  item.text = nextText
+}
+
+function deleteAgendaItem(id: number) {
+  agendaItems.value = agendaItems.value.filter((entry) => entry.id !== id)
+}
 
 const sessionId = computed(() => {
   const id = route.params.id
@@ -118,6 +216,7 @@ function startRightRowResize(event: MouseEvent) {
 }
 
 onMounted(async () => {
+  ensureRoomExists()
   window.addEventListener('mousemove', onResize)
   window.addEventListener('mouseup', stopResize)
 
@@ -150,16 +249,46 @@ onBeforeUnmount(() => {
       <p class="has-text-grey">Loading session...</p>
     </header>
 
+    <div class="room-bar px-3 py-2">
+      <div class="room-meta">
+        <span class="tag is-info is-light">Room: {{ currentRoomId }}</span>
+      </div>
+      <div class="room-actions field has-addons m-0">
+        <p class="control">
+          <button class="button is-small is-primary" type="button" @click="createRoom">New Room</button>
+        </p>
+        <p class="control">
+          <button class="button is-small is-light" type="button" @click="copyRoomLink">Copy Link</button>
+        </p>
+      </div>
+      <span v-if="roomMessage" class="room-message">{{ roomMessage }}</span>
+    </div>
+
   <div class="work-session-layout has-background-white-bis p-2 m-0" ref="containerRef">
     <div class="left-column" ref="leftColumnRef" :style="{ width: `${leftWidth}%` }">
-      <div class="has-background-dark has-radius-normal window left-top" :style="{ flex: `0 0 calc(${leftTopHeight}% - 13px)` }"><CodeEditor /></div>
+      <div class="has-background-dark has-radius-normal window left-top" :style="{ flex: `0 0 calc(${leftTopHeight}% - 13px)` }"><CodeEditor :room-name="currentRoomId" /></div>
       <button
         class="resize-handle-row"
         type="button"
         aria-label="Resize left panels"
         @mousedown="startLeftRowResize"
       ></button>
-      <div class="has-background-dark has-radius-normal window left-bottom" :style="{ flex: `0 0 calc(${100 - leftTopHeight}% - 13px)` }"><Agenda/></div>
+      <div class="has-background-dark has-radius-normal window left-bottom" :style="{ flex: `0 0 calc(${100 - leftTopHeight}% - 13px)` }">
+        <div class="agenda-chart-split">
+          <div class="agenda-pane">
+            <Agenda
+              :items="agendaItems"
+              @add="addAgendaItem"
+              @toggle="toggleAgendaItem"
+              @edit="editAgendaItem"
+              @delete="deleteAgendaItem"
+            />
+          </div>
+          <div class="chart-pane">
+            <CompletionChart :items="agendaItems" />
+          </div>
+        </div>
+      </div>
     </div>
 
      <!--button fgor resizing , all have decided funxtion, you preolly have to define more if more column-->
@@ -178,7 +307,7 @@ onBeforeUnmount(() => {
         aria-label="Resize right panels"
         @mousedown="startRightRowResize"
       ></button>
-      <div class="has-background-dark has-radius-normal window right-bottom" :style="{ flex: `0 0 calc(${100 - rightTopHeight}% - 13px)` }"><Chat :user = "user?.username"/></div>
+      <div class="has-background-dark has-radius-normal window right-bottom" :style="{ flex: `0 0 calc(${100 - rightTopHeight}% - 13px)` }"><Chat :user="user?.username"/></div>
     </div>
   </div>
   </div>
@@ -218,6 +347,29 @@ onBeforeUnmount(() => {
   margin: 0;
 }
 
+.room-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #dbdbdb;
+  background-color: #fff;
+}
+
+.room-meta {
+  min-width: 180px;
+}
+
+.room-actions {
+  flex: 1;
+  min-width: 280px;
+}
+
+.room-message {
+  color: #4a4a4a;
+  font-size: 0.9rem;
+}
+
 .work-session-layout {
   flex: 1;
   min-height: 0;
@@ -244,6 +396,23 @@ onBeforeUnmount(() => {
 
 .left-bottom {
   min-height: 120px;
+}
+
+.agenda-chart-split {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.agenda-pane {
+  flex: 1;
+  min-width: 0;
+}
+
+.chart-pane {
+  flex: 0 0 200px;
+  min-width: 160px;
 }
 
 .right-top,

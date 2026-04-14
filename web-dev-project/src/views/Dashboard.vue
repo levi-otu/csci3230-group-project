@@ -14,9 +14,6 @@ const greeting = computed(() => {
   return 'Good evening'
 })
 
-// Mock data — replace with API calls once backend endpoints exist
-
-// Student: topics covered across recent sessions
 const studentTopics = [
   { label: 'JS Basics', value: 8 },
   { label: 'CSS', value: 5 },
@@ -25,7 +22,6 @@ const studentTopics = [
   { label: 'Vue', value: 6 },
 ]
 
-// Student: hours studied per week
 const studentHours = [
   { label: 'Wk 1', value: 2 },
   { label: 'Wk 2', value: 3.5 },
@@ -35,7 +31,6 @@ const studentHours = [
   { label: 'Wk 6', value: 5.5 },
 ]
 
-// Instructor: sessions taught per week
 const instructorSessions = [
   { label: 'Wk 1', value: 4 },
   { label: 'Wk 2', value: 6 },
@@ -45,7 +40,6 @@ const instructorSessions = [
   { label: 'Wk 6', value: 6 },
 ]
 
-// Instructor: topic breakdown
 const instructorTopics = [
   { label: 'JavaScript', value: 12 },
   { label: 'Vue', value: 8 },
@@ -53,14 +47,12 @@ const instructorTopics = [
   { label: 'SVG/D3', value: 4 },
 ]
 
-// Admin: platform-wide role distribution
 const adminRoles = [
   { label: 'Students', value: 42 },
   { label: 'Instructors', value: 8 },
   { label: 'Admins', value: 2 },
 ]
 
-// Admin: active sessions per day
 const adminActivity = [
   { label: 'Mon', value: 12 },
   { label: 'Tue', value: 18 },
@@ -86,7 +78,6 @@ const adminActivity = [
       </p>
     </header>
 
-    <!-- Student -->
     <section v-if="user?.role === 'student'">
       <div class="columns is-multiline">
         <div class="column is-3">
@@ -127,7 +118,6 @@ const adminActivity = [
       </div>
     </section>
 
-    <!-- Instructor -->
     <section v-else-if="user?.role === 'instructor'">
       <div class="columns is-multiline">
         <div class="column is-3">
@@ -172,7 +162,6 @@ const adminActivity = [
       </div>
     </section>
 
-    <!-- Admin -->
     <section v-else-if="user?.role === 'admin'">
       <div class="columns is-multiline">
         <div class="column is-3">

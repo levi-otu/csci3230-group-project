@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 
@@ -6,13 +7,28 @@ defineProps<{ collapsed: boolean }>()
 
 const route = useRoute()
 const { user } = useAuth()
+const dashboardTo = computed(() => {
+  const roomId = route.params.roomId
+  return {
+    name: 'dashboard',
+    params: typeof roomId === 'string' ? { roomId } : {},
+  }
+})
+
+const workSessionTo = computed(() => {
+  const roomId = route.params.roomId
+  return {
+    name: 'work-session',
+    params: typeof roomId === 'string' ? { roomId } : {},
+  }
+})
 </script>
 
 <template>
   <aside class="sidebar-menu menu has-background-dark" :class="[collapsed ? 'p-2 is-collapsed' : 'p-4']">
     <ul class="menu-list">
       <li>
-        <RouterLink to="/" :class="{ 'is-active': route.path === '/' }">
+        <RouterLink :to="dashboardTo" :class="{ 'is-active': route.path.startsWith('/dashboard') || route.path === '/' }">
           <span class="icon"><i class="fas fa-tachometer-alt"></i></span>
           <span v-show="!collapsed" class="ml-2">Dashboard</span>
         </RouterLink>

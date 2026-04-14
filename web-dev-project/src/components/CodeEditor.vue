@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="editor-layout">
     <div class="toolbar">
       <div class="field is-grouped is-align-items-center m-0">
@@ -9,7 +9,7 @@
           </select>
         </div>
       </div>
-       <div class="field is-grouped is-align-items-center m-0">
+      <div class="field is-grouped is-align-items-center m-0">
         <label class="label is-small m-0 mr-2" for="theme-select">Theme</label>
         <div class="select is-small">
           <select id="theme-select" v-model="selectedTheme">
@@ -17,17 +17,19 @@
           </select>
         </div>
       </div>
+      <span class="tag is-small" :class="wsConnected ? 'is-success' : 'is-warning'">
+        {{ wsConnected ? 'Connected' : 'Connecting...' }}
+      </span>
       <button class="button is-link is-small" type="button" @click="runCode">Run</button>
     </div>
 
     <div class="work-area">
       <div class="editor-shell">
-        <VueMonacoEditor
-          v-model:value="code"
-          :language="selectedLanguage"
-          :theme="selectedTheme"
-          :options="editorOptions"
-          @mount="onEditorMount"
+        <codemirror
+          :model-value="''"
+          :extensions="baseExtensions"
+          :style="{ height: '100%', fontSize: '14px' }"
+          @ready="handleReady"
         />
       </div>
 
@@ -99,57 +101,82 @@
   font-size: 0.85rem;
 }
 
-:deep(.monaco-editor),
-:deep(.monaco-editor .overflow-guard) {
-  height: 100% !important;
+:deep(.cm-editor) {
+  height: 100%;
+}
+
+:deep(.cm-scroller) {
+  overflow: auto;
 }
 </style>
 
 <script setup lang="ts">
 import 'bulma/css/bulma.css'
-import { ref, shallowRef } from 'vue'
-import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
-import type * as Monaco from 'monaco-editor'
+import { ref, shallowRef, watch, onBeforeUnmount } from 'vue'
+import { Codemirror } from 'vue-codemirror'
+import { javascript } from '@codemirror/lang-javascript'
+import { oneDark } from '@codemirror/theme-one-dark'
+import { EditorView } from '@codemirror/view'
+import { Compartment } from '@codemirror/state'
+import * as Y from 'yjs'
+import { WebsocketProvider } from 'y-websocket'
+import { yCollab } from 'y-codemirror.next'
 
-import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
-import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+const props = withDefaults(defineProps<{ roomName?: string }>(), { roomName: 'default-room' })
 
-(self as any).MonacoEnvironment = {
-  getWorker(_: string, label: string) {
-    if (label === 'typescript' || label === 'javascript') {
-      return new tsWorker()
-    }
-    return new editorWorker()
-  }
-}
-
-const code = ref(`function hello() {
-  console.log("Hello, Monaco in Vue!")
-}
-
-hello()`)
-
-const languageOptions = ['javascript', 'typescript', 'python', 'java', 'cpp', 'csharp', 'go', 'rust'] as const
-const themeOptions = ['vs-dark', 'light', 'hc-black',] as const
+const languageOptions = ['javascript', 'typescript'] as const
+const themeOptions = ['vs-dark', 'light'] as const
 const selectedTheme = ref<(typeof themeOptions)[number]>('vs-dark')
 const selectedLanguage = ref<(typeof languageOptions)[number]>('javascript')
 const output = ref('Click Run to execute JavaScript/TypeScript code.')
-const editorInstance = shallowRef<Monaco.editor.IStandaloneCodeEditor | null>(null)
+const editorView = shallowRef<EditorView | null>(null)
+const wsConnected = ref(false)
 
-const editorOptions = {
-  automaticLayout: true,
-  fontSize: 14,
+// Yjs setup is done here for now
+const ydoc = new Y.Doc()
+const ytext = ydoc.getText('codemirror')
+const undoManager = new Y.UndoManager(ytext)
+
+
+//running websocket at 1234 port
+const wsProvider = new WebsocketProvider('ws://localhost:1234', props.roomName, ydoc)
+wsProvider.on('status', ({ status }: { status: string }) => {
+  wsConnected.value = status === 'connected'
+})
+
+// Compartments allow reconfiguring language/theme without disrupting Yjs state
+const langCompartment = new Compartment()
+const themeCompartment = new Compartment()
+
+const baseExtensions = [
+  EditorView.lineWrapping,
+  yCollab(ytext, wsProvider.awareness, { undoManager }),
+  langCompartment.of(javascript()),
+  themeCompartment.of(oneDark),
+]
+
+function handleReady({ view }: { view: EditorView }) {
+  editorView.value = view
 }
 
+watch(selectedLanguage, (lang) => {
+  editorView.value?.dispatch({
+    effects: langCompartment.reconfigure(javascript({ typescript: lang === 'typescript' })),
+  })
+})
 
-function onEditorMount(editor: Monaco.editor.IStandaloneCodeEditor) {
-  editorInstance.value = editor
-}
-
+watch(selectedTheme, (theme) => {
+  editorView.value?.dispatch({
+    effects: themeCompartment.reconfigure(theme === 'vs-dark' ? oneDark : []),
+  })
+})
 
 function runCode() {
-    output.value = `Currently working on it: ${selectedLanguage.value}`;
-    return;
+  output.value = `Currently working on it: ${selectedLanguage.value}`
 }
-</script>
 
+onBeforeUnmount(() => {
+  wsProvider.destroy()
+  ydoc.destroy()
+})
+</script>
