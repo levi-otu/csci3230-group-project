@@ -1,32 +1,44 @@
 <script setup lang="ts">
 import 'bulma/css/bulma.css'
-import {ref} from 'vue';
+import { ref } from 'vue'
+import AgendaListItem from './AgendaListItem.vue'
 
-// function addItem(){
-    
-// }
-
-const agendaList = ref([
-    {id: 1, text: "list item 1", check:false},
-]);
-
-const inputText = ref('');
-
-const addItem = () => {
-    if (inputText.value.trim() == "") return;
-    agendaList.value.push({
-        id: Date.now(),
-        text: inputText.value,
-        check:false,
-    })
-
-    inputText.value = "";
+type AgendaItem = {
+    id: number
+    text: string
+    completed: boolean
 }
 
-//enter functions
-// function sendMessage () {
-//     addItem();
-// }
+const props = defineProps<{
+    items: AgendaItem[]
+}>()
+
+const emit = defineEmits<{
+    add: [text: string]
+    toggle: [id: number, nextValue: boolean]
+    edit: [id: number, nextText: string]
+    delete: [id: number]
+}>()
+
+const inputText = ref('')
+
+const addItem = () => {
+    const nextText = inputText.value.trim()
+    if (nextText === '') {
+        return
+    }
+
+    emit('add', nextText)
+    inputText.value = ''
+}
+
+function forwardToggle(id: number, nextValue: boolean) {
+    emit('toggle', id, nextValue)
+}
+
+function forwardEdit(id: number, nextText: string) {
+    emit('edit', id, nextText)
+}
 
 </script>
 
@@ -37,9 +49,14 @@ const addItem = () => {
         </header>
         
         <div id="agenda-list">
-            <div v-for="item in agendaList" :key="item.id">
-                <input type="checkbox" class="has-text-weight-semibold" v-model="item.check">{{item.text}}
-            </div>
+            <AgendaListItem
+                            v-for="item in props.items"
+              :key="item.id"
+              :item="item"
+                            @toggle="forwardToggle"
+                            @edit="forwardEdit"
+                            @delete="emit('delete', $event)"
+            />
         </div>
         
         <div class="box p-0 mt-auto is-flex is-flex-direction-row has-background-black-ter"
@@ -53,7 +70,6 @@ const addItem = () => {
                 box-shadow: none;" 
                 placeholder="Add new task..."
                 @keydown.enter.exact.prevent="addItem"
-                @keydown.enter.shift="handleNewLine"
                 v-model="inputText">
             </textarea>
 
