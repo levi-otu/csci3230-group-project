@@ -247,10 +247,60 @@ onBeforeUnmount(() => {
 
 #toolbar-div {
     position: absolute;
-        z-index: 2;
-        user-select: none;
-        flex-wrap: wrap;
-        max-width: calc(100% - 16px);
+    z-index: 2;
+    user-select: none;
+    flex-wrap: wrap;
+    max-width: calc(100% - 16px);
+    resize: both;
+    overflow: hidden;
+
+    container-type: inline-size;
+
+    height: 165px;
+    width: 95px;
+
+    min-width: 95px;
+    min-height: 165px;
+}
+
+#toolbar-div > * {
+    flex: 1 1 auto;
+}
+
+@container (max-width: 350px) {
+    #toolbar-div .button.is-small {
+        font-size: 0.65rem; 
+        padding: 0 0.5rem;  
+        height: 1.75em;     
+    }
+
+    #toolbar-div label {
+        font-size: 0.7rem;
+    }
+
+    #toolbar-div input[type="color"] {
+        width: 24px;
+        height: 24px;
+        padding: 0;
+    }
+
+    #toolbar-div input[type="range"] {
+        max-width: 60px;
+    }
+    
+    #toolbar-div .drag-handle {
+        font-size: 0;
+    }
+    #toolbar-div .drag-handle::before {
+        content: "⠿";
+        font-size: 1rem;
+    }
+}
+
+@container (max-width: 90px) {
+    #toolbar-div label {
+        display: none;
+    }
 }
 
 .drag-handle {
