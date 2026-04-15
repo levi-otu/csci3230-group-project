@@ -10,6 +10,7 @@ import Chat from '@/components/Chat.vue'
 import { useAuth } from '@/composables/useAuth'
 import DrawingBoard from '@/components/DrawingBoard.vue'
 import CompletionChart from '@/components/CompletionChart.vue'
+import { useYjsRoom } from '@/composables/useYjsRoom'
 
 type AgendaItem = {
   id: number
@@ -29,6 +30,7 @@ const currentRoomId = computed(() => {
   const roomId = route.params.roomId
   return typeof roomId === 'string' ? roomId : ''
 })
+const { yDoc, provider, connected, ytext, ychat, ydrawing, yagenda } = useYjsRoom(currentRoomId)
 
 function generateRoomId(): string {
   const randomChunk = Math.random().toString(36).slice(2, 8)
