@@ -112,17 +112,21 @@
 
 <script setup lang="ts">
 import 'bulma/css/bulma.css'
-import { ref, shallowRef, watch, onBeforeUnmount } from 'vue'
+import { ref, shallowRef, watch} from 'vue'
 import { Codemirror } from 'vue-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { EditorView } from '@codemirror/view'
 import { Compartment } from '@codemirror/state'
 import * as Y from 'yjs'
-import { WebsocketProvider } from 'y-websocket'
 import { yCollab } from 'y-codemirror.next'
+import type { WebsocketProvider } from 'y-websocket'
 
-const props = withDefaults(defineProps<{ roomName?: string }>(), { roomName: 'default-room' })
+const props = defineProps<{
+  ytext: Y.Text
+  provider: WebsocketProvider | null
+}>()
+
 
 const languageOptions = ['javascript', 'typescript'] as const
 const themeOptions = ['vs-dark', 'light'] as const
@@ -130,19 +134,10 @@ const selectedTheme = ref<(typeof themeOptions)[number]>('vs-dark')
 const selectedLanguage = ref<(typeof languageOptions)[number]>('javascript')
 const output = ref('Click Run to execute JavaScript/TypeScript code.')
 const editorView = shallowRef<EditorView | null>(null)
-const wsConnected = ref(false)
 
-// Yjs setup is done here for now
-const ydoc = new Y.Doc()
-const ytext = ydoc.getText('codemirror')
-const undoManager = new Y.UndoManager(ytext)
+const wsConnected = ref(props.provider?.wsconnected ?? false)
 
-
-//running websocket at 1234 port
-const wsProvider = new WebsocketProvider('ws://localhost:1234', props.roomName, ydoc)
-wsProvider.on('status', ({ status }: { status: string }) => {
-  wsConnected.value = status === 'connected'
-})
+const undoManager = new Y.UndoManager(props.ytext)
 
 // Compartments allow reconfiguring language/theme without disrupting Yjs state
 const langCompartment = new Compartment()
@@ -150,7 +145,7 @@ const themeCompartment = new Compartment()
 
 const baseExtensions = [
   EditorView.lineWrapping,
-  yCollab(ytext, wsProvider.awareness, { undoManager }),
+  ...(props.provider ? [yCollab(props.ytext, props.provider.awareness, { undoManager })] : []),
   langCompartment.of(javascript()),
   themeCompartment.of(oneDark),
 ]
@@ -175,8 +170,4 @@ function runCode() {
   output.value = `Currently working on it: ${selectedLanguage.value}`
 }
 
-onBeforeUnmount(() => {
-  wsProvider.destroy()
-  ydoc.destroy()
-})
 </script>
