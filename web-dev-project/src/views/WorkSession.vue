@@ -268,7 +268,7 @@ onBeforeUnmount(() => {
 
   <div class="work-session-layout has-background-white-bis p-2 m-0" ref="containerRef">
     <div class="left-column" ref="leftColumnRef" :style="{ width: `${leftWidth}%` }">
-      <div class="has-background-dark has-radius-normal window left-top" :style="{ flex: `0 0 calc(${leftTopHeight}% - 13px)` }"><CodeEditor :room-name="currentRoomId" /></div>
+      <div class="has-background-dark has-radius-normal window left-top" :style="{ flex: `0 0 calc(${leftTopHeight}% - 13px)` }"><CodeEditor :ytext="ytext" :provider="provider" /></div>
       <button
         class="resize-handle-row"
         type="button"
