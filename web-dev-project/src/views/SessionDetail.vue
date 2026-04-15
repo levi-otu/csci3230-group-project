@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useSessions, type Session } from '@/composables/useSessions'
+import { showToast } from '@/composables/useToast'
 
 const route = useRoute()
 const router = useRouter()
@@ -78,34 +79,64 @@ async function loadSession() {
 
 async function handleStart() {
   const result = await changeStatus(sessionId.value, 'active')
-  if (result) await loadSession()
+  if (result) {
+    showToast('Session started', 'success')
+    await loadSession()
+  } else {
+    showToast(error.value || 'Failed to start session', 'error')
+  }
 }
 
 async function handleEnd() {
   const result = await changeStatus(sessionId.value, 'completed')
-  if (result) await loadSession()
+  if (result) {
+    showToast('Session ended', 'info')
+    await loadSession()
+  } else {
+    showToast(error.value || 'Failed to end session', 'error')
+  }
 }
 
 async function handleCancel() {
   if (!confirm('Cancel this session?')) return
   const result = await changeStatus(sessionId.value, 'cancelled')
-  if (result) await loadSession()
+  if (result) {
+    showToast('Session cancelled', 'warning')
+    await loadSession()
+  } else {
+    showToast(error.value || 'Failed to cancel session', 'error')
+  }
 }
 
 async function handleDelete() {
   if (!confirm('Delete this session permanently? This cannot be undone.')) return
   const success = await deleteSession(sessionId.value)
-  if (success) router.push('/sessions')
+  if (success) {
+    showToast('Session deleted', 'info')
+    router.push('/sessions')
+  } else {
+    showToast(error.value || 'Failed to delete session', 'error')
+  }
 }
 
 async function handleJoin() {
   const success = await joinSession(sessionId.value)
-  if (success) await loadSession()
+  if (success) {
+    showToast('You joined the session', 'success')
+    await loadSession()
+  } else {
+    showToast(error.value || 'Failed to join session', 'error')
+  }
 }
 
 async function handleLeave() {
   const success = await leaveSession(sessionId.value)
-  if (success) await loadSession()
+  if (success) {
+    showToast('You left the session', 'info')
+    await loadSession()
+  } else {
+    showToast(error.value || 'Failed to leave session', 'error')
+  }
 }
 
 function openWorkspace() {

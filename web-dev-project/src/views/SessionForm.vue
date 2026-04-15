@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSessions } from '@/composables/useSessions'
+import { showToast } from '@/composables/useToast'
 
 const route = useRoute()
 const router = useRouter()
@@ -71,10 +72,20 @@ async function handleSubmit() {
 
   if (isEditing.value && editingId.value !== null) {
     const updated = await updateSession(editingId.value, payload)
-    if (updated) router.push(`/sessions/${updated.id}`)
+    if (updated) {
+      showToast('Session updated successfully', 'success')
+      router.push(`/sessions/${updated.id}`)
+    } else {
+      showToast(error.value || 'Failed to update session', 'error')
+    }
   } else {
     const created = await createSession(payload)
-    if (created) router.push(`/sessions/${created.id}`)
+    if (created) {
+      showToast('Session created successfully', 'success')
+      router.push(`/sessions/${created.id}`)
+    } else {
+      showToast(error.value || 'Failed to create session', 'error')
+    }
   }
 }
 </script>

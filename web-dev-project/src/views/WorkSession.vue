@@ -5,6 +5,7 @@ import 'bulma/css/bulma.css'
 import CodeEditor from '../components/CodeEditor.vue'
 import Agenda from '@/components/Agenda.vue'
 import { useSessions, type Session } from '@/composables/useSessions'
+import { showToast } from '@/composables/useToast'
 import Chat from '@/components/Chat.vue'
 import { useAuth } from '@/composables/useAuth'
 import DrawingBoard from '@/components/DrawingBoard.vue'
@@ -65,9 +66,9 @@ async function copyRoomLink() {
   const roomUrl = `${window.location.origin}/work-session/${roomId}`
   try {
     await navigator.clipboard.writeText(roomUrl)
-    roomMessage.value = 'Room link copied'
+    showToast('Room link copied to clipboard', 'success')
   } catch {
-    roomMessage.value = 'Copy failed. Use the browser URL bar to share.'
+    showToast('Copy failed — use the browser URL bar to share', 'warning')
   }
 }
 

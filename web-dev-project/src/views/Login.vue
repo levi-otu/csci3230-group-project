@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { showToast } from '@/composables/useToast'
 
 const router = useRouter()
 const { login, register, error: authError, isLoading } = useAuth()
@@ -22,10 +23,16 @@ async function handleSubmit() {
       return
     }
     const success = await register(username.value, email.value, password.value)
-    if (success) router.push('/')
+    if (success) {
+      showToast('Account created — welcome to TutorSync!', 'success')
+      router.push('/')
+    }
   } else {
     const success = await login(username.value, password.value)
-    if (success) router.push('/')
+    if (success) {
+      showToast(`Welcome back, ${username.value}`, 'success')
+      router.push('/')
+    }
   }
 }
 </script>
