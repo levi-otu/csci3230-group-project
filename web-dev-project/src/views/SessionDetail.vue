@@ -55,7 +55,7 @@ function statusTagClass(status: Session['status']) {
     case 'active':
       return 'is-success'
     case 'completed':
-      return 'is-light'
+      return 'is-success is-light'
     case 'cancelled':
       return 'is-danger is-light'
   }

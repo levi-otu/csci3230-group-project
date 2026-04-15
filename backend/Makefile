@@ -12,8 +12,8 @@ dev:
 build:
 	npm run build
 
-# Start production server from dist/
-start:
+# Build then start production server from dist/
+start: build
 	npm run start
 
 # Create the tutorsync database
