@@ -1,11 +1,39 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, nextTick } from 'vue'
+import $ from 'jquery'
 import { useAuth } from '@/composables/useAuth'
 import BarChart from '@/components/charts/BarChart.vue'
 import DonutChart from '@/components/charts/DonutChart.vue'
 import LineChart from '@/components/charts/LineChart.vue'
 
 const { user } = useAuth()
+
+// jQuery animated stat counters — counts up from 0 to the target value
+onMounted(async () => {
+  await nextTick()
+  $('.stat-value[data-target]').each(function () {
+    const $el = $(this)
+    const target = parseFloat($el.data('target'))
+    const isDecimal = String(target).includes('.')
+    const hasSuffix = String($el.data('suffix') || '')
+
+    $el.text('0')
+    $({ count: 0 }).animate(
+      { count: target },
+      {
+        duration: 1200,
+        easing: 'swing',
+        step(now: number) {
+          $el.text(isDecimal ? now.toFixed(1) : Math.floor(now).toString())
+        },
+        complete() {
+          $el.text(isDecimal ? target.toFixed(1) : target.toString())
+          if (hasSuffix) $el.append(hasSuffix)
+        },
+      },
+    )
+  })
+})
 
 const greeting = computed(() => {
   const hour = new Date().getHours()
@@ -83,25 +111,25 @@ const adminActivity = [
         <div class="column is-3">
           <div class="stat-card">
             <p class="stat-label">Sessions Attended</p>
-            <p class="stat-value">14</p>
+            <p class="stat-value" data-target="14">0</p>
           </div>
         </div>
         <div class="column is-3">
           <div class="stat-card">
             <p class="stat-label">Hours Studied</p>
-            <p class="stat-value">26.5</p>
+            <p class="stat-value" data-target="26.5">0</p>
           </div>
         </div>
         <div class="column is-3">
           <div class="stat-card">
             <p class="stat-label">Topics Covered</p>
-            <p class="stat-value">24</p>
+            <p class="stat-value" data-target="24">0</p>
           </div>
         </div>
         <div class="column is-3">
           <div class="stat-card">
             <p class="stat-label">Upcoming</p>
-            <p class="stat-value">2</p>
+            <p class="stat-value" data-target="2">0</p>
           </div>
         </div>
 
@@ -123,25 +151,25 @@ const adminActivity = [
         <div class="column is-3">
           <div class="stat-card">
             <p class="stat-label">Sessions Taught</p>
-            <p class="stat-value">36</p>
+            <p class="stat-value" data-target="36">0</p>
           </div>
         </div>
         <div class="column is-3">
           <div class="stat-card">
             <p class="stat-label">Active Students</p>
-            <p class="stat-value">18</p>
+            <p class="stat-value" data-target="18">0</p>
           </div>
         </div>
         <div class="column is-3">
           <div class="stat-card">
             <p class="stat-label">Hours Tutored</p>
-            <p class="stat-value">54</p>
+            <p class="stat-value" data-target="54">0</p>
           </div>
         </div>
         <div class="column is-3">
           <div class="stat-card">
             <p class="stat-label">Avg Rating</p>
-            <p class="stat-value">4.8</p>
+            <p class="stat-value" data-target="4.8">0</p>
           </div>
         </div>
 
@@ -167,25 +195,25 @@ const adminActivity = [
         <div class="column is-3">
           <div class="stat-card">
             <p class="stat-label">Total Users</p>
-            <p class="stat-value">52</p>
+            <p class="stat-value" data-target="52">0</p>
           </div>
         </div>
         <div class="column is-3">
           <div class="stat-card">
             <p class="stat-label">Active Sessions</p>
-            <p class="stat-value">7</p>
+            <p class="stat-value" data-target="7">0</p>
           </div>
         </div>
         <div class="column is-3">
           <div class="stat-card">
             <p class="stat-label">Sessions Today</p>
-            <p class="stat-value">22</p>
+            <p class="stat-value" data-target="22">0</p>
           </div>
         </div>
         <div class="column is-3">
           <div class="stat-card">
             <p class="stat-label">Uptime</p>
-            <p class="stat-value">99.9%</p>
+            <p class="stat-value" data-target="99.9" data-suffix="%">0</p>
           </div>
         </div>
 
