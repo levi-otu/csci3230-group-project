@@ -309,7 +309,8 @@ onBeforeUnmount(() => {
         aria-label="Resize right panels"
         @mousedown="startRightRowResize"
       ></button>
-      <div class="has-background-dark has-radius-normal window right-bottom" :style="{ flex: `0 0 calc(${100 - rightTopHeight}% - 13px)` }"><Chat :user="user?.username"/></div>
+      <div class="has-background-dark has-radius-normal window right-bottom" :style="{ flex: `0 0 calc(${100 - rightTopHeight}% - 13px)` }"><Chat :user="user?.username" :ychat="ychat" />
+</div>
     </div>
   </div>
   </div>

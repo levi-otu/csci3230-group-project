@@ -47,12 +47,6 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/work-session/:id',
-      name: 'work-session-detail',
-      component: WorkSession,
-      meta: { requiresAuth: true },
-    },
-    {
       path: '/sessions',
       name: 'sessions',
       component: Sessions,
