@@ -11,7 +11,7 @@ import SessionDetail from '../views/SessionDetail.vue'
 type Role = 'admin' | 'instructor' | 'student'
 
 // Temporary local-dev bypass. Set to false to restore sign-in checks.
-const AUTH_DISABLED = false
+const AUTH_DISABLED = true
 
 declare module 'vue-router' {
   interface RouteMeta {
