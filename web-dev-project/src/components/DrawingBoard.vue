@@ -242,7 +242,7 @@ onMounted(() => {
             saveCanvas();
             isDrawing.value = false;
         }
-    }, 1000/*60000*/);
+    }, 30000/*60000*/);
 })
 
 onBeforeUnmount(() => {
