@@ -1,29 +1,39 @@
 <script setup lang="ts">
 import 'bulma/css/bulma.css'
 import {ref} from 'vue';
+import type * as Y from 'yjs'
 
-const props = defineProps({
-    user: String,
-});
-
-interface ChatMessage {
+type ChatMessage = {
     user: string;
     text: string;
+    timestamp: number;
 }
 
-const chatList = ref<ChatMessage[]>([]);
+const props = defineProps<{
+    user?: string
+    ychat: Y.Array<ChatMessage>
+}>()
+
+const chatList = ref<ChatMessage[]>([])
+
+// Keep local list in sync with Yjs array
+function syncFromYjs() {
+    chatList.value = props.ychat.toArray()
+}
+props.ychat.observe(syncFromYjs)
+syncFromYjs()
 
 const inputText = ref('');
 
-const enterChat = () =>{
-    if (inputText.value.trim() == "") return;
-    if (!props.user) return;
-    chatList.value.push({
-        user: props.user,
+const enterChat = () => {
+    if (inputText.value.trim() === '') return
+    const username = props.user || 'Anonymous'
+    props.ychat.push([{
+        user: username,
         text: inputText.value,
-    })
-
-    inputText.value = "";
+        timestamp: Date.now(),
+    }])
+    inputText.value = ''
 }
 
 function handleNewLine() {
@@ -56,7 +66,8 @@ function handleNewLine() {
                 min-width: 0%;
                 background: transparent;
                 border: none;
-                box-shadow: none;" 
+                box-shadow: none;
+                color: white;" 
                 placeholder="Message..."
                 @keydown.enter.exact.prevent="enterChat"
                 @keydown.enter.shift="handleNewLine"

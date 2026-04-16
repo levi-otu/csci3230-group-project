@@ -67,7 +67,8 @@ function forwardEdit(id: number, nextText: string) {
                 min-width: 0%;
                 background: transparent;
                 border: none;
-                box-shadow: none;" 
+                box-shadow: none;
+                color: white;" 
                 placeholder="Add new task..."
                 @keydown.enter.exact.prevent="addItem"
                 v-model="inputText">

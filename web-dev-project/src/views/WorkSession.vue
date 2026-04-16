@@ -10,6 +10,7 @@ import Chat from '@/components/Chat.vue'
 import { useAuth } from '@/composables/useAuth'
 import DrawingBoard from '@/components/DrawingBoard.vue'
 import CompletionChart from '@/components/CompletionChart.vue'
+import { useYjsRoom } from '@/composables/useYjsRoom'
 
 type AgendaItem = {
   id: number
@@ -29,6 +30,13 @@ const currentRoomId = computed(() => {
   const roomId = route.params.roomId
   return typeof roomId === 'string' ? roomId : ''
 })
+const { yDoc, provider, connected, ytext, ychat, ydrawing, yagenda } = useYjsRoom(currentRoomId)
+
+function syncAgenda() {
+  agendaItems.value = yagenda.toArray()
+}
+yagenda.observe(syncAgenda)
+syncAgenda()
 
 function generateRoomId(): string {
   const randomChunk = Math.random().toString(36).slice(2, 8)
@@ -85,11 +93,11 @@ function ensureRoomExists() {
 }
 
 function addAgendaItem(text: string) {
-  agendaItems.value.push({
+  yagenda.push([{
     id: Date.now(),
     text,
     completed: false,
-  })
+  }])
 }
 
 function toggleAgendaItem(id: number, nextValue: boolean) {
@@ -101,15 +109,17 @@ function toggleAgendaItem(id: number, nextValue: boolean) {
 }
 
 function editAgendaItem(id: number, nextText: string) {
-  const item = agendaItems.value.find((entry) => entry.id === id)
-  if (!item) {
-    return
-  }
-  item.text = nextText
+  const idx = yagenda.toArray().findIndex((entry) => entry.id === id)
+  if (idx === -1) return
+  const item = yagenda.get(idx)
+  yagenda.delete(idx, 1)
+  yagenda.insert(idx, [{ ...item, text: nextText }])
 }
 
 function deleteAgendaItem(id: number) {
-  agendaItems.value = agendaItems.value.filter((entry) => entry.id !== id)
+  const idx = yagenda.toArray().findIndex((entry) => entry.id === id)
+  if (idx === -1) return
+  yagenda.delete(idx, 1)
 }
 
 const sessionId = computed(() => {
@@ -267,7 +277,7 @@ onBeforeUnmount(() => {
 
   <div class="work-session-layout has-background-white-bis p-2 m-0" ref="containerRef">
     <div class="left-column" ref="leftColumnRef" :style="{ width: `${leftWidth}%` }">
-      <div class="has-background-dark has-radius-normal window left-top" :style="{ flex: `0 0 calc(${leftTopHeight}% - 13px)` }"><CodeEditor :room-name="currentRoomId" /></div>
+      <div class="has-background-dark has-radius-normal window left-top" :style="{ flex: `0 0 calc(${leftTopHeight}% - 13px)` }"><CodeEditor :ytext="ytext" :provider="provider" /></div>
       <button
         class="resize-handle-row"
         type="button"
@@ -301,14 +311,19 @@ onBeforeUnmount(() => {
     ></button>
 
     <div class="right-column" ref="rightColumnRef">
+<<<<<<< HEAD
       <div class="has-background-dark has-radius-normal window right-top" :style="{ flex: `0 0 calc(${rightTopHeight}% - 13px)` }"><DrawingBoard /></div>
+=======
+      <div class="has-background-dark has-radius-normal window right-top" :style="{ flex: `0 0 calc(${rightTopHeight}% - 13px)` }"><DrawingBoard :ydrawing="ydrawing" /></div>
+>>>>>>> main
       <button
         class="resize-handle-row"
         type="button"
         aria-label="Resize right panels"
         @mousedown="startRightRowResize"
       ></button>
-      <div class="has-background-dark has-radius-normal window right-bottom" :style="{ flex: `0 0 calc(${100 - rightTopHeight}% - 13px)` }"><Chat :user="user?.username"/></div>
+      <div class="has-background-dark has-radius-normal window right-bottom" :style="{ flex: `0 0 calc(${100 - rightTopHeight}% - 13px)` }"><Chat :user="user?.username" :ychat="ychat" />
+</div>
     </div>
   </div>
   </div>
