@@ -68,7 +68,8 @@ function handleNewLine() {
                 min-width: 0%;
                 background: transparent;
                 border: none;
-                box-shadow: none;" 
+                box-shadow: none;
+                color: white;" 
                 placeholder="Message..."
                 @keydown.enter.exact.prevent="enterChat"
                 @keydown.enter.shift="handleNewLine"
