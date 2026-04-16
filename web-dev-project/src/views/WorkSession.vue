@@ -32,6 +32,12 @@ const currentRoomId = computed(() => {
 })
 const { yDoc, provider, connected, ytext, ychat, ydrawing, yagenda } = useYjsRoom(currentRoomId)
 
+function syncAgenda() {
+  agendaItems.value = yagenda.toArray()
+}
+yagenda.observe(syncAgenda)
+syncAgenda()
+
 function generateRoomId(): string {
   const randomChunk = Math.random().toString(36).slice(2, 8)
   const timeChunk = Date.now().toString(36).slice(-4)
@@ -87,11 +93,11 @@ function ensureRoomExists() {
 }
 
 function addAgendaItem(text: string) {
-  agendaItems.value.push({
+  yagenda.push([{
     id: Date.now(),
     text,
     completed: false,
-  })
+  }])
 }
 
 function toggleAgendaItem(id: number, nextValue: boolean) {
@@ -103,15 +109,17 @@ function toggleAgendaItem(id: number, nextValue: boolean) {
 }
 
 function editAgendaItem(id: number, nextText: string) {
-  const item = agendaItems.value.find((entry) => entry.id === id)
-  if (!item) {
-    return
-  }
-  item.text = nextText
+  const idx = yagenda.toArray().findIndex((entry) => entry.id === id)
+  if (idx === -1) return
+  const item = yagenda.get(idx)
+  yagenda.delete(idx, 1)
+  yagenda.insert(idx, [{ ...item, text: nextText }])
 }
 
 function deleteAgendaItem(id: number) {
-  agendaItems.value = agendaItems.value.filter((entry) => entry.id !== id)
+  const idx = yagenda.toArray().findIndex((entry) => entry.id === id)
+  if (idx === -1) return
+  yagenda.delete(idx, 1)
 }
 
 const sessionId = computed(() => {
