@@ -1,7 +1,19 @@
 <script setup lang="ts">
 import 'bulma/css/bulma.css'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import type * as Y from 'yjs'
+ 
+type Stroke = {
+    points: { x: number; y: number }[]
+    color: string
+    size: number
+    eraser: boolean
+}
 
+
+const props = defineProps<{
+    ydrawing: Y.Array<Stroke>
+}>()
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const contextRef = ref<CanvasRenderingContext2D | null>(null)
 const drawing = ref(false)
@@ -12,6 +24,7 @@ const isEraser = ref(false)
 const toolbarPos = ref({ x: 20, y: 20 })
 
 const cursorRef = ref<HTMLDivElement | null>(null);
+const currentStroke = ref<Stroke | null>(null)
 const cursorPos = ref({x: -100, y:-100})
 
 function resizeCanvas() {
@@ -41,6 +54,7 @@ function resizeCanvas() {
     ctx.strokeStyle = color.value
     ctx.lineWidth = brushSize.value
     contextRef.value = ctx
+    replayAllStrokes()
 }
 
 function getPointerPoint(event: PointerEvent) {
@@ -66,17 +80,45 @@ function updateBrush() {
     ctx.strokeStyle = isEraser.value ? '#0f172a' : color.value
 }
 
+function drawStroke(ctx: CanvasRenderingContext2D, stroke: Stroke) {
+    if (stroke.points.length < 2) return
+    ctx.save()
+    ctx.strokeStyle = stroke.eraser ? '#0f172a' : stroke.color
+    ctx.lineWidth = stroke.size
+    ctx.lineCap = 'round'
+    ctx.lineJoin = 'round'
+    ctx.beginPath()
+    ctx.moveTo(stroke.points[0].x, stroke.points[0].y)
+    for (let i = 1; i < stroke.points.length; i++) {
+        ctx.lineTo(stroke.points[i].x, stroke.points[i].y)
+    }
+    ctx.stroke()
+    ctx.restore()
+}
+ 
+function replayAllStrokes() {
+    const ctx = contextRef.value
+    if (!ctx) return
+    for (const stroke of props.ydrawing.toArray()) {
+        drawStroke(ctx, stroke)
+    }
+}
+
 function startDrawing(event: PointerEvent) {
     const canvas = canvasRef.value
     const ctx = contextRef.value
-    if (!canvas || !ctx) {
-        return
-    }
+    if (!canvas || !ctx) return
 
     canvas.setPointerCapture(event.pointerId)
     drawing.value = true
     updateBrush()
     const point = getPointerPoint(event)
+    currentStroke.value = {
+        points: [point],
+        color: color.value,
+        size: brushSize.value,
+        eraser: isEraser.value,
+    }
     ctx.beginPath()
     ctx.moveTo(point.x, point.y)
 }
@@ -89,16 +131,12 @@ function handleMouseMove(event: PointerEvent){
 }
 
 function draw(event: PointerEvent) {
-    if (!drawing.value) {
-        return
-    }
-
+    if (!drawing.value) return
     const ctx = contextRef.value
-    if (!ctx) {
-        return
-    }
+    if (!ctx) return
 
     const point = getPointerPoint(event)
+    currentStroke.value?.points.push(point)
     ctx.lineTo(point.x, point.y)
     ctx.stroke()
 }
@@ -112,10 +150,15 @@ function stopDrawing(event: PointerEvent) {
     if (ctx) {
         ctx.beginPath()
     }
+    if (currentStroke.value && currentStroke.value.points.length > 1) {
+        props.ydrawing.push([currentStroke.value])
+    }
+    currentStroke.value = null
     drawing.value = false
 }
 
 function clearCanvas() {
+    props.ydrawing.delete(0, props.ydrawing.length)
     resizeCanvas()
 }
 
@@ -168,6 +211,15 @@ watch(brushSize, updateBrush)
 onMounted(() => {
     resizeCanvas()
     window.addEventListener('resize', resizeCanvas)
+ 
+    props.ydrawing.observe(() => {
+        const ctx = contextRef.value
+        if (!ctx) return
+        const strokes = props.ydrawing.toArray()
+        if (strokes.length > 0) {
+            drawStroke(ctx, strokes[strokes.length - 1])
+        }
+    })
 })
 
 onBeforeUnmount(() => {

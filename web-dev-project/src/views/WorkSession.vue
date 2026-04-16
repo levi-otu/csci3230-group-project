@@ -303,7 +303,7 @@ onBeforeUnmount(() => {
     ></button>
 
     <div class="right-column" ref="rightColumnRef">
-      <div class="has-background-dark has-radius-normal window right-top" :style="{ flex: `0 0 calc(${rightTopHeight}% - 13px)` }"><DrawingBoard/></div>
+      <div class="has-background-dark has-radius-normal window right-top" :style="{ flex: `0 0 calc(${rightTopHeight}% - 13px)` }"><DrawingBoard :ydrawing="ydrawing" /></div>
       <button
         class="resize-handle-row"
         type="button"
