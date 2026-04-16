@@ -13,7 +13,8 @@ type Stroke = {
 
 const props = defineProps<{
     ydrawing: Y.Array<Stroke>
-}>()import { useRoute } from 'vue-router'
+}>()
+import { useRoute } from 'vue-router'
 import { useDrawings } from '@/composables/useDrawings'
 
 const route = useRoute()
