@@ -15,7 +15,7 @@ const server = http.createServer(app)
 
 sequelize.authenticate().then(() => {
   console.log('Database connection established')
-  server.listen(port)
+  server.listen(port, () => {console.log(`running on ${port}`)})
   server.on('error', onError)
   server.on('listening', onListening)
 }).catch((err) => {

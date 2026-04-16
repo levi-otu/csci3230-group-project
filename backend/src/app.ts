@@ -8,6 +8,7 @@ import indexRouter from './routes/index'
 import usersRouter from './routes/users'
 import authRouter from './routes/auth'
 import sessionsRouter from './routes/sessions'
+import drawingsRouter from './routes/drawings'
 
 const app = express()
 
@@ -22,5 +23,6 @@ app.use('/', indexRouter)
 app.use('/users', usersRouter)
 app.use('/auth', authRouter)
 app.use('/sessions', sessionsRouter)
+app.use('/drawings', drawingsRouter)
 
 export default app
