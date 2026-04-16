@@ -204,7 +204,9 @@ async function saveCanvas() {
         return;
     }
 
-    const ok = await saveCanvasApi(sessionId.value, canvas);
+    const fileName = typeof route.params.roomId === 'string' ? route.params.roomId : null;
+
+    const ok = await saveCanvasApi(sessionId.value, canvas, fileName);
     if (ok) {
         console.log("Saved Canvas");
     } else {

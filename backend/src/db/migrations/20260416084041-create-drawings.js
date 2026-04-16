@@ -33,6 +33,10 @@ module.exports = {
         allowNull: false,
         defaultValue: 'image/png',
       },
+      fileName: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,

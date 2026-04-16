@@ -8,6 +8,7 @@ class Drawing extends Model {
   declare sessionId: number
   declare imageData: Buffer
   declare imageMimeType: string
+  declare fileName: string | null
   declare readonly createdAt: Date
   declare readonly updatedAt: Date
 }
@@ -35,6 +36,10 @@ Drawing.init(
             type: DataTypes.STRING(255),
             allowNull: false,
             defaultValue: 'image/png'
+        },
+        fileName: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
         }
     },
     {

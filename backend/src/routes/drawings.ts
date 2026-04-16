@@ -19,7 +19,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 
     const drawings = await Drawing.findAll({
         where: { userId: req.user.id },
-        attributes: ['id', 'userId', 'sessionId', 'imageMimeType', 'createdAt'],
+        attributes: ['id', 'userId', 'sessionId', 'imageMimeType', 'fileName', 'createdAt'],
         order: [['createdAt', 'DESC']],
     })
 
@@ -45,7 +45,8 @@ router.get('/:id/download', async (req: AuthRequest, res: Response) => {
     }
 
     res.setHeader('Content-Type', drawing.imageMimeType)
-    res.setHeader('Content-Disposition', `attachment; filename="drawing-${drawing.id}.png"`)
+    const downloadName = drawing.fileName ? `${drawing.fileName}.png` : `drawing-${drawing.id}.png`
+    res.setHeader('Content-Disposition', `attachment; filename="${downloadName}"`)
     res.send(drawing.imageData)
 })
 
@@ -63,18 +64,42 @@ router.post('/', upload.single('image'), async (req: AuthRequest, res: Response)
     }
 
     const sessionId = req.body.sessionId ? Number(req.body.sessionId) : null
+    const fileName = req.body.fileName || null
 
-    const newDrawing = await Drawing.create({
-        userId: req.user.id,
-        sessionId,
-        imageData: req.file.buffer,
-        imageMimeType: req.file.mimetype,
+    const existingDrawing = await Drawing.findOne({
+        where:{
+            fileName: fileName,
+            userId: req.user.id,
+        }
     })
 
-    res.status(201).json({
-        message: 'Saved canvas successfully',
-        drawingId: newDrawing.id,
-    })
+    if(existingDrawing){
+        await existingDrawing.update({
+            // sessionId: sessionId,
+            imageData: req.file.buffer,
+            imageMimeType: req.file.mimetype,
+        })
+
+        res.status(200).json({
+            message: 'Updated existing canvas successfully',
+            drawingId: existingDrawing.id,
+        })
+    }
+    else{
+        const newDrawing = await Drawing.create({
+            userId: req.user.id,
+            sessionId,
+            imageData: req.file.buffer,
+            imageMimeType: req.file.mimetype,
+            fileName,
+        })
+
+        res.status(201).json({
+            message: 'Saved canvas successfully',
+            drawingId: newDrawing.id,
+        })
+    }
+
 })
 
 export default router
