@@ -27,8 +27,6 @@ const inputText = ref('');
 
 const enterChat = () => {
     if (inputText.value.trim() === '') return
-
-    // TODO: Change back once users are figured out
     const username = props.user || 'Anonymous'
     props.ychat.push([{
         user: username,
