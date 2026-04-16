@@ -5,7 +5,7 @@ import sequelize from '../db'
 class Drawing extends Model {
   declare id: number
   declare userId: number
-  declare sessionId: number
+  declare sessionId: string | null
   declare imageData: Buffer
   declare imageMimeType: string
   declare fileName: string | null
@@ -25,7 +25,7 @@ Drawing.init(
             allowNull: false,
         },
         sessionId: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING(255),
             allowNull: true,
         },
         imageData: {

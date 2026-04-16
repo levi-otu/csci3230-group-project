@@ -5,7 +5,7 @@ const API_URL = 'http://localhost:3000'
 export interface DrawingMeta {
   id: number
   userId: number
-  sessionId: number | null
+  sessionId: string | null
   imageMimeType: string
   fileName: string | null
   createdAt: string
@@ -21,7 +21,7 @@ export function useDrawings() {
   const isLoading = ref(false)
   const drawings = ref<DrawingMeta[]>([])
 
-  async function saveCanvas(sessionId: number | null, canvas: HTMLCanvasElement, fileName: string | null): Promise<boolean> {
+  async function saveCanvas(sessionId: string | null, canvas: HTMLCanvasElement, fileName: string | null): Promise<boolean> {
     return new Promise((resolve) => {
       canvas.toBlob(async (blob) => {
         if (!blob) {
@@ -34,7 +34,7 @@ export function useDrawings() {
         const saveName = fileName ?? 'figure.png'
         formData.append('image', blob, `${saveName}.png`)
         if (sessionId !== null) {
-          formData.append('sessionId', String(sessionId))
+          formData.append('sessionId', sessionId)
         }
         if (fileName !== null) {
           formData.append('fileName', fileName)

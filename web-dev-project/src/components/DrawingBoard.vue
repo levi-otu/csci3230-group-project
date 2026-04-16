@@ -21,10 +21,9 @@ const route = useRoute()
 const { saveCanvas: saveCanvasApi } = useDrawings()
 
 const sessionId = computed(() => {
-  const id = route.params.id
-  return id ? Number(id) : null
+  const id = route.params.roomId
+  return typeof id === 'string' ? id : null
 })
-console.log("value", sessionId.value)
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const contextRef = ref<CanvasRenderingContext2D | null>(null)
@@ -257,9 +256,7 @@ async function saveCanvas() {
         return;
     }
 
-    const fileName = typeof route.params.roomId === 'string' ? route.params.roomId : null;
-
-    const ok = await saveCanvasApi(sessionId.value, canvas, fileName);
+    const ok = await saveCanvasApi(sessionId.value, canvas, sessionId.value);
     if (ok) {
         console.log("Saved Canvas");
     } else {

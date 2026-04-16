@@ -63,7 +63,7 @@ router.post('/', upload.single('image'), async (req: AuthRequest, res: Response)
         return
     }
 
-    const sessionId = req.body.sessionId ? Number(req.body.sessionId) : null
+    const sessionId = req.body.sessionId || null
     const fileName = req.body.fileName || null
 
     const existingDrawing = await Drawing.findOne({
