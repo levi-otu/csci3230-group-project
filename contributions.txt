@@ -16,8 +16,13 @@ Contributions:
 Member 2: Alan Zheng
 BannerID: 100868898
 Contributions:
-- Built file views to let users see their saved drawings, and worked on the backend to support saving drawings.
-- Worked on the work session view for the drawing board and chat on the frontend. Introduced nicer drag components to give users more features on the canvas.
+- Setup work session windows/grid.
+- Frontend: Built agenda, chatlogs, and the canvas.
+- Initially built code editor using Monaco.
+- Improved toolbar usuability and scaling for DrawingBoard.
+- Built file views to let users see their saved drawings.
+- Worked on database migration to support saving drawings and other byte files.
+- Implemented API's to save and load session saved files based on user.
 
 Member 3: Josiah Jehoiakim Yap
 BannerID: 100847388
