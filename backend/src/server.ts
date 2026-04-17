@@ -2,6 +2,9 @@ import app from './app'
 import http from 'http'
 import debugModule from 'debug'
 import sequelize from './db'
+import { WebSocketServer } from 'ws'
+// @ts-ignore – y-websocket has no type declarations
+import { setupWSConnection } from 'y-websocket/bin/utils'
 
 // Import models to register them with Sequelize
 import './models'
@@ -12,6 +15,10 @@ const port = normalizePort(process.env.PORT || '3000')
 app.set('port', port)
 
 const server = http.createServer(app)
+const wss = new WebSocketServer({ server })
+wss.on('connection', (ws, req) => {
+  setupWSConnection(ws, req)
+})
 
 sequelize.authenticate().then(() => {
   console.log('Database connection established')

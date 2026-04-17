@@ -27,7 +27,9 @@
     "pg": "^8.20.0",
     "sequelize": "^6.37.8",
     "ws": "^8.20.0",
-    "y-websocket": "^3.0.0"
+    "y-protocols": "^1.0.7",
+    "y-websocket": "^1.5.4",
+    "yjs": "^13.6.30"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
