@@ -26,7 +26,6 @@
     <div class="work-area">
       <div class="editor-shell">
         <codemirror
-          :model-value="''"
           :extensions="baseExtensions"
           :style="{ height: '100%', fontSize: '14px' }"
           @ready="handleReady"
@@ -112,7 +111,7 @@
 
 <script setup lang="ts">
 import 'bulma/css/bulma.css'
-import { ref, shallowRef, watch} from 'vue'
+import { ref, shallowRef, watch, onMounted } from 'vue'
 import { Codemirror } from 'vue-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 import { oneDark } from '@codemirror/theme-one-dark'
@@ -143,17 +142,31 @@ const undoManager = new Y.UndoManager(props.ytext)
 // Compartments allow reconfiguring language/theme without disrupting Yjs state
 const langCompartment = new Compartment()
 const themeCompartment = new Compartment()
+const collabCompartment = new Compartment()
 
 const baseExtensions = [
   EditorView.lineWrapping,
-  ...(props.provider ? [yCollab(props.ytext, props.provider.awareness, { undoManager })] : []),
+  collabCompartment.of([]),
   langCompartment.of(javascript()),
   themeCompartment.of(oneDark),
 ]
 
 function handleReady({ view }: { view: EditorView }) {
   editorView.value = view
+  if (props.provider) {
+    view.dispatch({
+      effects: collabCompartment.reconfigure(yCollab(props.ytext, props.provider.awareness, { undoManager })),
+    })
+  }
 }
+
+watch(() => props.provider, (p) => {
+  if (p && editorView.value) {
+    editorView.value.dispatch({
+      effects: collabCompartment.reconfigure(yCollab(props.ytext, p.awareness, { undoManager })),
+    })
+  }
+})
 
 function getEditorSource() {
   return props.ytext.toString().trim()
