@@ -16,25 +16,38 @@ Contributions:
 Member 2: Alan Zheng
 BannerID: 100868898
 Contributions:
-- Built file views to let users see their saved drawings, and worked on the backend to support saving drawings.
-- Worked on the work session view for the drawing board and chat on the frontend. Introduced nicer drag components to give users more features on the canvas.
+- Set up work session windows/grid.
+- Frontend: Built the agenda, chat logs, and canvas.
+- Initially built the code editor using Monaco.
+- Improved toolbar usability and scaling for DrawingBoard.
+- Built file views to let users see their saved drawings.
+- Worked on database migration to support saving drawings and other binary files.
+- Implemented APIs to save and load session files by user.
 
 Member 3: Josiah Jehoiakim Yap
 BannerID: 100847388
 Contributions:
-- Implemented the collaborative editor and Yjs room logic after the initial phase.
-- Worked on setting up Yjs in the backend and connecting all four components to it for a collaborative environment.
-- Integrated chat and whiteboard synchronization.
-- Updated the room frontend to let users enter a room using a room code.
+- Created useYjsRoom.ts composable for shared Yjs document and WebSocket management.
+- Refactored WorkSession.vue to use a single Yjs document across all panels.
+- Refactored CodeEditor.vue for real-time collaborative editing via y-codemirror.next.
+- Refactored Chat.vue to sync messages through a shared Y.Array.
+- Refactored DrawingBoard.vue to sync strokes via Y.Array with replay-on-join.
+- Refactored Agenda.vue to emit events and moved CRUD logic to WorkSession.vue backed by Y.Array.
+- Added room code display, copy button, and join-by-code input in WorkSession.vue.
+- Integrated y-websocket server into Express backend, reducing from 3 services to 2.
+- Created start-all.sh script to launch both services with one command.
+- Fixed text input visibility in Chat and Agenda textareas.
 
 Member 4: Amandeep Singh Amandeep Singh
 BannerID: 100861312
 Contributions:
 - Built work session components for the code editor using CodeMirror. Initially built using Monaco, then switched to CodeMirror to integrate with Yjs.
-- Built the initial room setup using Yjs to enable real-time code collaboration, including drawing board logic to support touch input.
+- Built the initial room setup using Yjs to enable real-time code collaboration.
+- Improved the drawing capabilities so users can use touch to draw.
 - Built the agenda list with a chart to show pending and completed items, including full functionality for deleting, editing, and toggling completion.
 - Implemented logic to make the four sub-panels custom-sized, with two controls to adjust the layout.
 - Worked on documentation and introduced the demo users seeder (20260417000100-demo-users.js) to make fresh-start testing easier.
+- Came up with the initial design plan and some features; the starter image was drawn using Gemini.
 
 
 
