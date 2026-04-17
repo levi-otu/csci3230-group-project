@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type * as Y from 'yjs'
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import 'bulma/css/bulma.css'
@@ -10,13 +11,7 @@ import Chat from '@/components/Chat.vue'
 import { useAuth } from '@/composables/useAuth'
 import DrawingBoard from '@/components/DrawingBoard.vue'
 import CompletionChart from '@/components/CompletionChart.vue'
-import { useYjsRoom } from '@/composables/useYjsRoom'
-
-type AgendaItem = {
-  id: number
-  text: string
-  completed: boolean
-}
+import { useYjsRoom, type YjsAgendaItem, type YjsChatMessage, type YjsStroke } from '@/composables/useYjsRoom'
 
 const route = useRoute()
 const router = useRouter()
@@ -24,16 +19,19 @@ const { getSession } = useSessions()
 const { user } = useAuth()
 
 const roomMessage = ref('')
-const agendaItems = ref<AgendaItem[]>([])
+const agendaItems = ref<YjsAgendaItem[]>([])
 
 const currentRoomId = computed(() => {
   const roomId = route.params.roomId
   return typeof roomId === 'string' ? roomId : ''
 })
-const { yDoc, provider, connected, ytext, ychat, ydrawing, yagenda } = useYjsRoom(currentRoomId)
+const { yDoc, provider, connected, ytext, ychat: rawYChat, ydrawing: rawYDrawing, yagenda: rawYAgenda } = useYjsRoom(currentRoomId)
+const ychat = rawYChat as Y.Array<YjsChatMessage>
+const ydrawing = rawYDrawing as Y.Array<YjsStroke>
+const yagenda = rawYAgenda as Y.Array<YjsAgendaItem>
 
 function syncAgenda() {
-  agendaItems.value = yagenda.toArray()
+  agendaItems.value = yagenda.toArray() as YjsAgendaItem[]
 }
 yagenda.observe(syncAgenda)
 syncAgenda()
@@ -129,15 +127,16 @@ function toggleAgendaItem(id: number, nextValue: boolean) {
 }
 
 function editAgendaItem(id: number, nextText: string) {
-  const idx = yagenda.toArray().findIndex((entry) => entry.id === id)
+  const idx = (yagenda.toArray() as YjsAgendaItem[]).findIndex((entry) => entry.id === id)
   if (idx === -1) return
-  const item = yagenda.get(idx)
+  const item = yagenda.get(idx) as YjsAgendaItem | undefined
+  if (!item) return
   yagenda.delete(idx, 1)
   yagenda.insert(idx, [{ ...item, text: nextText }])
 }
 
 function deleteAgendaItem(id: number) {
-  const idx = yagenda.toArray().findIndex((entry) => entry.id === id)
+  const idx = (yagenda.toArray() as YjsAgendaItem[]).findIndex((entry) => entry.id === id)
   if (idx === -1) return
   yagenda.delete(idx, 1)
 }
@@ -314,7 +313,7 @@ onBeforeUnmount(() => {
 
   <div class="work-session-layout has-background-white-bis p-2 m-0" ref="containerRef">
     <div class="left-column" ref="leftColumnRef" :style="{ width: `${leftWidth}%` }">
-      <div class="has-background-dark has-radius-normal window left-top" :style="{ flex: `0 0 calc(${leftTopHeight}% - 13px)` }"><CodeEditor :ytext="ytext" :provider="provider" /></div>
+      <div class="has-background-dark has-radius-normal window left-top" :style="{ flex: `0 0 calc(${leftTopHeight}% - 13px)` }"><CodeEditor :ytext="ytext" :provider="provider" :connected="connected" /></div>
       <button
         class="resize-handle-row"
         type="button"

@@ -1,4 +1,5 @@
 // sequelize-cli requires a JS config file
+require('dotenv').config()
 module.exports = {
   development: {
     username: process.env.DB_USER || 'postgres',

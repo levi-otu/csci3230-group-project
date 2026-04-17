@@ -39,6 +39,7 @@ const currentStroke = ref<Stroke | null>(null)
 const cursorPos = ref({x: -100, y:-100})
 
 const isDrawing = ref(false);
+let autoSaveHandle: ReturnType<typeof setInterval> | null = null
 
 function resizeCanvas() {
     const canvas = canvasRef.value
@@ -95,15 +96,18 @@ function updateBrush() {
 
 function drawStroke(ctx: CanvasRenderingContext2D, stroke: Stroke) {
     if (stroke.points.length < 2) return
+    const firstPoint = stroke.points[0]
+    if (!firstPoint) return
+    const remainingPoints = stroke.points.slice(1)
     ctx.save()
     ctx.strokeStyle = stroke.eraser ? '#0f172a' : stroke.color
     ctx.lineWidth = stroke.size
     ctx.lineCap = 'round'
     ctx.lineJoin = 'round'
     ctx.beginPath()
-    ctx.moveTo(stroke.points[0].x, stroke.points[0].y)
-    for (let i = 1; i < stroke.points.length; i++) {
-        ctx.lineTo(stroke.points[i].x, stroke.points[i].y)
+    ctx.moveTo(firstPoint.x, firstPoint.y)
+    for (const point of remainingPoints) {
+        ctx.lineTo(point.x, point.y)
     }
     ctx.stroke()
     ctx.restore()
@@ -231,12 +235,13 @@ onMounted(() => {
         const ctx = contextRef.value
         if (!ctx) return
         const strokes = props.ydrawing.toArray()
-        if (strokes.length > 0) {
-            drawStroke(ctx, strokes[strokes.length - 1])
+        const latestStroke = strokes.at(-1)
+        if (latestStroke) {
+            drawStroke(ctx, latestStroke)
         }
     })
 
-    const autoSave = setInterval(() => {
+    autoSaveHandle = setInterval(() => {
         if(isDrawing.value){
             console.log("Saving canvas...");
             saveCanvas();
@@ -247,6 +252,10 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     window.removeEventListener('resize', resizeCanvas)
+    if (autoSaveHandle) {
+        clearInterval(autoSaveHandle)
+        autoSaveHandle = null
+    }
 })
 
 async function saveCanvas() {

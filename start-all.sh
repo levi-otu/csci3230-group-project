@@ -7,7 +7,7 @@ echo "Starting backend API (port 3000)..."
 (cd backend && npm run dev) &
 
 echo "Starting Yjs WebSocket server (port 1234)..."
-(cd web-dev-project && npx y-websocket) &
+(cd backend && npm run yjs:dev) &
 
 echo "Starting frontend dev server (port 5173)..."
 (cd web-dev-project && npm run dev) &

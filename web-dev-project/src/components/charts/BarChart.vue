@@ -51,7 +51,7 @@ function render() {
 
   const y = d3
     .scaleLinear()
-    .domain([0, d3.max(props.data, (d) => d.value) || 1])
+    .domain([0, d3.max(props.data, (d: BarDatum) => d.value) || 1])
     .nice()
     .range([innerHeight, 0])
 
@@ -75,7 +75,7 @@ function render() {
     .data(props.data)
     .enter()
     .append('rect')
-    .attr('x', (d) => x(d.label) || 0)
+    .attr('x', (d: BarDatum) => x(d.label) || 0)
     .attr('y', innerHeight)
     .attr('width', x.bandwidth())
     .attr('height', 0)
@@ -83,8 +83,8 @@ function render() {
     .attr('rx', 4)
     .transition()
     .duration(600)
-    .attr('y', (d) => y(d.value))
-    .attr('height', (d) => innerHeight - y(d.value))
+    .attr('y', (d: BarDatum) => y(d.value))
+    .attr('height', (d: BarDatum) => innerHeight - y(d.value))
 }
 
 onMounted(() => {
