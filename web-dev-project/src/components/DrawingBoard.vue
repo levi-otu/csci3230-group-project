@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import 'bulma/css/bulma.css'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch, computed } from 'vue'
 import type * as Y from 'yjs'
  
 type Stroke = {
@@ -14,6 +14,17 @@ type Stroke = {
 const props = defineProps<{
     ydrawing: Y.Array<Stroke>
 }>()
+import { useRoute } from 'vue-router'
+import { useDrawings } from '@/composables/useDrawings'
+
+const route = useRoute()
+const { saveCanvas: saveCanvasApi } = useDrawings()
+
+const sessionId = computed(() => {
+  const id = route.params.roomId
+  return typeof id === 'string' ? id : null
+})
+
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const contextRef = ref<CanvasRenderingContext2D | null>(null)
 const drawing = ref(false)
@@ -26,6 +37,8 @@ const toolbarPos = ref({ x: 20, y: 20 })
 const cursorRef = ref<HTMLDivElement | null>(null);
 const currentStroke = ref<Stroke | null>(null)
 const cursorPos = ref({x: -100, y:-100})
+
+const isDrawing = ref(false);
 
 function resizeCanvas() {
     const canvas = canvasRef.value
@@ -139,6 +152,8 @@ function draw(event: PointerEvent) {
     currentStroke.value?.points.push(point)
     ctx.lineTo(point.x, point.y)
     ctx.stroke()
+
+    isDrawing.value = true;
 }
 
 function stopDrawing(event: PointerEvent) {
@@ -220,11 +235,34 @@ onMounted(() => {
             drawStroke(ctx, strokes[strokes.length - 1])
         }
     })
+
+    const autoSave = setInterval(() => {
+        if(isDrawing.value){
+            console.log("Saving canvas...");
+            saveCanvas();
+            isDrawing.value = false;
+        }
+    }, 30000/*60000*/);
 })
 
 onBeforeUnmount(() => {
     window.removeEventListener('resize', resizeCanvas)
 })
+
+async function saveCanvas() {
+    const canvas = canvasRef.value;
+    if (!canvas) {
+        console.error("Cannot Save: No canvas");
+        return;
+    }
+
+    const ok = await saveCanvasApi(sessionId.value, canvas, sessionId.value);
+    if (ok) {
+        console.log("Saved Canvas");
+    } else {
+        console.error("Failed to save canvas");
+    }
+}
 
 </script>
 
