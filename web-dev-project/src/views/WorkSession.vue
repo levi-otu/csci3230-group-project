@@ -80,6 +80,26 @@ async function copyRoomLink() {
   }
 }
 
+async function copyRoomCode() {
+  const roomId = currentRoomId.value
+  if (!roomId) return
+  try {
+    await navigator.clipboard.writeText(roomId)
+    showToast('Room code copied to clipboard', 'success')
+  } catch {
+    showToast('Copy failed', 'warning')
+  }
+}
+
+const joinRoomCode = ref('')
+
+function joinByCode() {
+  const code = joinRoomCode.value.trim()
+  if (!code) return
+  goToRoom(code)
+  joinRoomCode.value = ''
+}
+
 function ensureRoomExists() {
   if (currentRoomId.value) {
     return
@@ -270,6 +290,23 @@ onBeforeUnmount(() => {
         </p>
         <p class="control">
           <button class="button is-small is-light" type="button" @click="copyRoomLink">Copy Link</button>
+        </p>
+        <p class="control">
+          <button class="button is-small is-light" type="button" @click="copyRoomCode">Copy Code</button>
+        </p>
+      </div>
+      <div class="room-join field has-addons m-0 ml-3">
+        <p class="control">
+          <input
+            class="input is-small"
+            type="text"
+            placeholder="Enter room code..."
+            v-model="joinRoomCode"
+            @keydown.enter.prevent="joinByCode"
+          />
+        </p>
+        <p class="control">
+          <button class="button is-small is-info" type="button" @click="joinByCode">Join</button>
         </p>
       </div>
       <span v-if="roomMessage" class="room-message">{{ roomMessage }}</span>
