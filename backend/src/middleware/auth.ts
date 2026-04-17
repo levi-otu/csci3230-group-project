@@ -11,6 +11,7 @@ export interface AuthPayload {
 
 export interface AuthRequest extends Request {
   user?: AuthPayload
+  file?: Express.Multer.File
 }
 
 export function generateToken(payload: AuthPayload): string {

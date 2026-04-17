@@ -17,8 +17,8 @@
           </select>
         </div>
       </div>
-      <span class="tag is-small" :class="wsConnected ? 'is-success' : 'is-warning'">
-        {{ wsConnected ? 'Connected' : 'Connecting...' }}
+      <span class="tag is-small" :class="connected ? 'is-success' : 'is-warning'">
+        {{ connected ? 'Connected' : 'Connecting...' }}
       </span>
       <button class="button is-link is-small" type="button" @click="runCode">Run</button>
     </div>
@@ -121,10 +121,12 @@ import { Compartment } from '@codemirror/state'
 import * as Y from 'yjs'
 import { yCollab } from 'y-codemirror.next'
 import type { WebsocketProvider } from 'y-websocket'
+import ts from 'typescript'
 
 const props = defineProps<{
   ytext: Y.Text
   provider: WebsocketProvider | null
+  connected: boolean
 }>()
 
 
@@ -134,8 +136,7 @@ const selectedTheme = ref<(typeof themeOptions)[number]>('vs-dark')
 const selectedLanguage = ref<(typeof languageOptions)[number]>('javascript')
 const output = ref('Click Run to execute JavaScript/TypeScript code.')
 const editorView = shallowRef<EditorView | null>(null)
-
-const wsConnected = ref(props.provider?.wsconnected ?? false)
+const isRunning = ref(false)
 
 const undoManager = new Y.UndoManager(props.ytext)
 
@@ -154,6 +155,49 @@ function handleReady({ view }: { view: EditorView }) {
   editorView.value = view
 }
 
+function getEditorSource() {
+  return props.ytext.toString().trim()
+}
+
+function formatRunOutput(logs: string[], result?: unknown) {
+  const renderedLogs = logs.join('\n')
+  const renderedResult = result === undefined ? '' : `\nReturn value: ${String(result)}`
+  const combined = `${renderedLogs}${renderedResult}`.trim()
+  return combined || 'Code executed successfully with no output.'
+}
+
+function normalizeRuntimeError(error: unknown) {
+  if (error instanceof Error) {
+    return error.stack || `${error.name}: ${error.message}`
+  }
+
+  return String(error)
+}
+
+function transpileSource(source: string) {
+  if (selectedLanguage.value !== 'typescript') {
+    return source
+  }
+
+  const result = ts.transpileModule(source, {
+    compilerOptions: {
+      target: ts.ScriptTarget.ES2020,
+      module: ts.ModuleKind.ES2020,
+      strict: false,
+    },
+    reportDiagnostics: true,
+  })
+
+  if (result.diagnostics?.length) {
+    const diagnostics = result.diagnostics
+      .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
+      .join('\n')
+    throw new Error(diagnostics)
+  }
+
+  return result.outputText
+}
+
 watch(selectedLanguage, (lang) => {
   editorView.value?.dispatch({
     effects: langCompartment.reconfigure(javascript({ typescript: lang === 'typescript' })),
@@ -166,8 +210,38 @@ watch(selectedTheme, (theme) => {
   })
 })
 
-function runCode() {
-  output.value = `Currently working on it: ${selectedLanguage.value}`
+async function runCode() {
+  const source = getEditorSource()
+
+  if (!source) {
+    output.value = 'Editor is empty.'
+    return
+  }
+
+  isRunning.value = true
+  output.value = `Running ${selectedLanguage.value}...`
+
+  const logs: string[] = []
+  const consoleProxy = {
+    log: (...args: unknown[]) => logs.push(args.map((arg) => String(arg)).join(' ')),
+    info: (...args: unknown[]) => logs.push(args.map((arg) => String(arg)).join(' ')),
+    warn: (...args: unknown[]) => logs.push(`Warning: ${args.map((arg) => String(arg)).join(' ')}`),
+    error: (...args: unknown[]) => logs.push(`Error: ${args.map((arg) => String(arg)).join(' ')}`),
+  }
+
+  try {
+    const executableSource = transpileSource(source)
+    const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor as new (
+      ...args: string[]
+    ) => (...fnArgs: unknown[]) => Promise<unknown>
+    const runner = new AsyncFunction('console', 'globalThis', `${executableSource}`)
+    const result = await runner(consoleProxy, globalThis)
+    output.value = formatRunOutput(logs, result)
+  } catch (error) {
+    output.value = normalizeRuntimeError(error)
+  } finally {
+    isRunning.value = false
+  }
 }
 
 </script>

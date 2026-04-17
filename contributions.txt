@@ -1,0 +1,40 @@
+CSCI3230 Group Project Contributions
+
+Member 1: Levi Willms
+BannerID: 100708714
+Contributions:
+- Bootstrapped the Express backend with PostgreSQL, Sequelize ORM, and database migrations.
+- Implemented JWT authentication (login/register routes, middleware, role-based authorization).
+- Built the login and registration UI and connected frontend auth state via useAuth composable.
+- Created the session CRUD system end-to-end (backend routes, useSessions composable, Sessions list/detail/form pages).
+- Built role-based dashboards (admin/instructor/student) with D3.js charts (bar, line, donut).
+- Built the admin panel with user management (list, search, role changes, create, delete users).
+- Implemented jQuery features (animated stat counters, toast notification system).
+- Added route guards, role-based sidebar navigation, navbar with profile dropdown and logout.
+- Set up project scaffolding, Bulma theming and sidebar collapse toggle.
+
+Member 2: Alan Zheng
+BannerID: 100868898
+Contributions:
+- Built file views to let users see their saved drawings, and worked on the backend to support saving drawings.
+- Worked on the work session view for the drawing board and chat on the frontend. Introduced nicer drag components to give users more features on the canvas.
+
+Member 3: Josiah Jehoiakim Yap
+BannerID: 100847388
+Contributions:
+- Implemented the collaborative editor and Yjs room logic after the initial phase.
+- Worked on setting up Yjs in the backend and connecting all four components to it for a collaborative environment.
+- Integrated chat and whiteboard synchronization.
+- Updated the room frontend to let users enter a room using a room code.
+
+Member 4: Amandeep Singh Amandeep Singh
+BannerID: 100861312
+Contributions:
+- Built work session components for the code editor using CodeMirror. Initially built using Monaco, then switched to CodeMirror to integrate with Yjs.
+- Built the initial room setup using Yjs to enable real-time code collaboration, including drawing board logic to support touch input.
+- Built the agenda list with a chart to show pending and completed items, including full functionality for deleting, editing, and toggling completion.
+- Implemented logic to make the four sub-panels custom-sized, with two controls to adjust the layout.
+- Worked on documentation and introduced the demo users seeder (20260417000100-demo-users.js) to make fresh-start testing easier.
+
+
+

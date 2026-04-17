@@ -64,7 +64,8 @@ export function useUsers() {
       }
       // Update local list
       const idx = users.value.findIndex((u) => u.id === userId)
-      if (idx !== -1) users.value[idx].role = role as UserRecord['role']
+      const existingUser = idx === -1 ? undefined : users.value[idx]
+      if (existingUser) existingUser.role = role as UserRecord['role']
       return true
     } catch {
       error.value = 'Unable to connect to server'

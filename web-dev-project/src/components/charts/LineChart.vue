@@ -51,7 +51,7 @@ function render() {
 
   const y = d3
     .scaleLinear()
-    .domain([0, d3.max(props.data, (d) => d.value) || 1])
+    .domain([0, d3.max(props.data, (d: LineDatum) => d.value) || 1])
     .nice()
     .range([innerHeight, 0])
 
@@ -72,9 +72,9 @@ function render() {
   g.selectAll('.tick line').attr('stroke', '#4a5063')
 
   const line = d3
-    .line<LineDatum>()
-    .x((d) => x(d.label) || 0)
-    .y((d) => y(d.value))
+    .line()
+    .x((d: unknown) => x((d as LineDatum).label) || 0)
+    .y((d: unknown) => y((d as LineDatum).value))
     .curve(d3.curveMonotoneX)
 
   const path = g
@@ -97,8 +97,8 @@ function render() {
     .data(props.data)
     .enter()
     .append('circle')
-    .attr('cx', (d) => x(d.label) || 0)
-    .attr('cy', (d) => y(d.value))
+    .attr('cx', (d: LineDatum) => x(d.label) || 0)
+    .attr('cy', (d: LineDatum) => y(d.value))
     .attr('r', 0)
     .attr('fill', props.color)
     .transition()

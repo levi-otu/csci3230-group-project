@@ -5,6 +5,25 @@ import { WebsocketProvider } from 'y-websocket'
 
 const WS_URL = 'ws://localhost:3000'
 
+export type YjsChatMessage = {
+    user: string
+    text: string
+    timestamp: number
+}
+
+export type YjsStroke = {
+    points: { x: number; y: number }[]
+    color: string
+    size: number
+    eraser: boolean
+}
+
+export type YjsAgendaItem = {
+    id: number
+    text: string
+    completed: boolean
+}
+
 export function useYjsRoom(roomId: Ref<string>) {
     
     //Shared Document
@@ -15,9 +34,9 @@ export function useYjsRoom(roomId: Ref<string>) {
 
     //Panel Data
     const ytext = yDoc.getText('codemirror')
-    const ychat = yDoc.getArray('chat')
-    const ydrawing =  yDoc.getArray('drawing')
-    const yagenda = yDoc.getArray('agenda')
+    const ychat = yDoc.getArray<YjsChatMessage>('chat')
+    const ydrawing =  yDoc.getArray<YjsStroke>('drawing')
+    const yagenda = yDoc.getArray<YjsAgendaItem>('agenda')
 
     function connect(room:string){
         // Disconnect from current room if exists

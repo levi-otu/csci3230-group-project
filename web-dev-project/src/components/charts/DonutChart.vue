@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue'
-import * as d3 from 'd3'
+import { arc, interpolate, pie, scaleOrdinal, select } from 'd3'
 
 interface DonutDatum {
   label: string
@@ -30,43 +30,39 @@ function render() {
   const height = props.height
   const radius = Math.min(width, height) / 2 - 10
 
-  d3.select(container.value).selectAll('svg').remove()
+  select(container.value).selectAll('svg').remove()
 
-  const svg = d3
-    .select(container.value)
+  const svg = select(container.value)
     .append('svg')
     .attr('width', width)
     .attr('height', height)
 
   const g = svg.append('g').attr('transform', `translate(${width / 2},${height / 2})`)
 
-  const color = d3
-    .scaleOrdinal<string>()
+  const color = scaleOrdinal()
     .domain(props.data.map((d) => d.label))
     .range(COLORS)
 
-  const pie = d3
-    .pie<DonutDatum>()
-    .value((d) => d.value)
+  const pieGenerator = pie()
+    .value((d: unknown) => (d as DonutDatum).value)
     .sort(null)
 
-  const arc = d3
-    .arc<d3.PieArcDatum<DonutDatum>>()
+  const arcGenerator = arc()
     .innerRadius(radius * 0.55)
     .outerRadius(radius)
 
-  const arcs = g.selectAll('arc').data(pie(props.data)).enter().append('g')
+  const arcs = g.selectAll('arc').data(pieGenerator(props.data)).enter().append('g')
 
   arcs
     .append('path')
-    .attr('fill', (d) => color(d.data.label) as string)
+    .attr('fill', (d: any) => color((d.data as DonutDatum).label) as string)
     .attr('stroke', '#2c3040')
     .attr('stroke-width', 2)
     .transition()
     .duration(600)
-    .attrTween('d', function (d) {
-      const i = d3.interpolate({ startAngle: 0, endAngle: 0 }, d)
-      return (t) => arc(i(t) as d3.PieArcDatum<DonutDatum>) || ''
+    .attrTween('d', function (d: any) {
+      const i = interpolate({ startAngle: 0, endAngle: 0 }, d)
+      return (t: number) => arcGenerator(i(t)) || ''
     })
 
   const total = props.data.reduce((sum, d) => sum + d.value, 0)
