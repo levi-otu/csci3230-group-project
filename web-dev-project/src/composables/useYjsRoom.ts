@@ -3,7 +3,7 @@ import { ref, onBeforeUnmount, watch, type Ref } from 'vue'
 import * as Y from 'yjs'
 import { WebsocketProvider } from 'y-websocket'
 
-const WS_URL = 'ws://localhost:1234'
+const WS_URL = 'ws://localhost:3000'
 
 export function useYjsRoom(roomId: Ref<string>) {
     
