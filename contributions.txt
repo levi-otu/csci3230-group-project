@@ -1,7 +1,5 @@
 CSCI3230 Group Project Contributions
 
-Replace the placeholder text below before submission.
-
 Member 1: Levi Willms
 BannerID: 100708714
 Contributions:
